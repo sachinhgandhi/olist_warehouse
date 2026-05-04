@@ -1,0 +1,29 @@
+
+target/
+dbt_packages/
+logs/
+dbt_internal_packages/
+
+# GitHub Actions cache
+/.github/.cache
+
+# DBT cache
+olist_warehouse/.dbt/
+olist_warehouse/analyses/
+olist_warehouse/logs/
+olist_warehouse/macros/
+olist_warehouse/seeds/
+olist_warehouse/target/
+olist_warehouse/tests/
+
+# Virtual Environment
+venv/
+.env/
+.env.bak/
+
+.env
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+.DS_Store
