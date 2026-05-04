@@ -1,0 +1,163 @@
+version: 2
+
+sources:
+  - name: olist_source_data
+    description: >
+      Raw data of olist which includes following dataset customers, sellers, product categories, products, 
+      Geolocation, orders, order line items, order payments & order reviews
+    database: OLIST_WAREHOUSE
+    schema: source_data
+    tables:
+      - name: raw_customers
+        description: contains customer details including unique identifiers and location information
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              arguments:
+                combination_of_columns:
+                  - customer_unique_id
+                  - customer_id
+
+        columns:
+          - name: customer_unique_id
+            description: >
+              A distinct identifier assigned to each customer in the source dataset to uniquely differentiate 
+              one customer from another.
+            tests:
+              - not_null
+
+          - name: customer_id
+            description: unique identifier for each customer
+            tests:
+              - not_null
+              - unique
+
+          - name: customer_zip_code
+            description: zip code associated with the customer’s address
+            tests:
+              - not_null
+
+          - name: customer_city
+            description: city where the customer is located
+            tests:
+              - not_null
+
+          - name: customer_state
+            description: state where the customer resides
+            tests:
+              - not_null
+
+          - name: load_ts
+            description: timestamp when the record was loaded into the system
+            tests:
+              - not_null
+
+      - name: raw_sellers
+        description: contains seller details including location information and record load timestamp
+        columns:
+          - name: seller_id
+            description: unique identifier for each seller
+            tests:
+              - not_null
+              - unique
+
+          - name: seller_zip_code_prefix
+            description: zip code prefix associated with the seller’s location
+            tests:
+              - not_null
+
+          - name: seller_city
+            description: city where the seller is located
+            tests:
+              - not_null
+
+          - name: seller_state
+            description: state where the seller operates
+            tests:
+              - not_null
+
+          - name: load_ts
+            description: timestamp when the record was loaded into the system
+            tests:
+              - not_null
+
+      - name: raw_geolocation
+        description: contains geographic location details mapped to zip code prefixes
+        columns:
+          - name: geolocation_zip_code_prefix
+            description: zip code prefix used to identify geographic area
+            tests:
+              - not_null
+
+          - name: geolocation_lat
+            description: latitude coordinate of the location
+            tests:
+              - not_null
+
+          - name: geolocation_long
+            description: longitude coordinate of the location
+            tests:
+              - not_null
+
+          - name: geolocation_city
+            description: city corresponding to the zip code prefix
+            tests:
+              - not_null
+
+          - name: geolocation_state
+            description: state corresponding to the zip code prefix
+            tests:
+              - not_null
+
+          - name: load_ts
+            description: timestamp when the record was loaded into the system
+            tests:
+              - not_null
+
+      - name: raw_product_category
+        description: maps product category names to their english equivalents
+        columns:
+          - name: product_category_name
+            description: original product category name
+            tests:
+              - not_null
+
+          - name: product_category_name_english
+            description: english translation of the product category name
+
+      - name: raw_product
+        description: contains product details including category, dimensions, and attributes
+        columns:
+          - name: product_id
+            description: unique identifier for each product
+            tests:
+              - not_null
+              - unique
+
+          - name: product_category_name
+            description: category to which the product belongs
+            tests:
+              - not_null
+
+          - name: product_name_lenght
+            description: length of the product name text
+
+          - name: product_description_lenght
+            description: length of the product description text
+
+          - name: product_photos_qty
+            description: number of photos available for the product
+
+          - name: product_weight_g
+            description: weight of the product in grams
+
+          - name: product_length_cm
+            description: length of the product in centimeters
+
+          - name: product_height_cm
+            description: height of the product in centimeters
+
+          - name: product_width_cm
+            description: width of the product in centimeters
+
+          - name: load_ts
+            description: timestamp when the record was loaded into the system
