@@ -8,6 +8,51 @@ sources:
     database: OLIST_WAREHOUSE
     schema: source_data
     tables:
+      - name: raw_geolocation
+        description: contains geographic location details mapped to zip code prefixes
+        columns:
+          - name: geolocation_zip_code_prefix
+            description: Zip code prefix is NOT unique. Multiple rows may exist for same prefix.
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_geolocation_geolocation_zip_code_prefix_not_null_error
+
+          - name: geolocation_lat
+            description: latitude coordinate of the location
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_geolocation_geolocation_lat_not_null_error
+
+          - name: geolocation_lng
+            description: longitude coordinate of the location
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_geolocation_geolocation_lng_not_null_error
+
+          - name: geolocation_city
+            description: city corresponding to the zip code prefix
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_geolocation_geolocation_city_not_null_error
+
+          - name: geolocation_state
+            description: state corresponding to the zip code prefix
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_geolocation_geolocation_state_not_null_error
+
+          - name: load_ts
+            description: timestamp when the record was loaded into the system
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_geolocation_load_ts_not_null_error
+
       - name: raw_customers
         description: contains customer details including unique identifiers and location information
         tests:
@@ -16,6 +61,8 @@ sources:
                 combination_of_columns:
                   - customer_unique_id
                   - customer_id
+              config:
+                alias: raw_customers_customer_unique_id_customer_id_unique_combination_of_columns_error
 
         columns:
           - name: customer_unique_id
@@ -23,33 +70,55 @@ sources:
               A distinct identifier assigned to each customer in the source dataset to uniquely differentiate 
               one customer from another.
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    alias: raw_customers_customer_unique_id_not_null_error
 
           - name: customer_id
             description: unique identifier for each customer
             tests:
-              - not_null
-              - unique
+              - not_null:
+                  config:
+                    alias: raw_customers_customer_id_not_null_error
+              - unique:
+                  config:
+                    alias: raw_customers_customer_id_unique_error
 
           - name: customer_zip_code
-            description: zip code associated with the customer’s address
+            description: zip code associated with the customers address
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    alias: raw_customers_customer_zip_code_not_null_error
+              - relationships:
+                  arguments:
+                    to: source("olist_source_data", "raw_geolocation")
+                    field: geolocation_zip_code_prefix
+                  config:
+                    severity: warn
+                    store_failures: true
+                    alias: raw_customers_customer_zip_code_relationships_warn
 
           - name: customer_city
             description: city where the customer is located
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    alias: raw_customers_customer_city_not_null_error
 
           - name: customer_state
             description: state where the customer resides
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    alias: raw_customers_customer_state_not_null_error
 
           - name: load_ts
             description: timestamp when the record was loaded into the system
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    alias: raw_customers_load_ts_not_null_error
 
       - name: raw_sellers
         description: contains seller details including location information and record load timestamp
@@ -57,61 +126,48 @@ sources:
           - name: seller_id
             description: unique identifier for each seller
             tests:
-              - not_null
-              - unique
+              - not_null:
+                  config:
+                    alias: raw_sellers_seller_id_not_null_error
+              - unique:
+                  config:
+                    alias: raw_sellers_seller_id_unique_error
 
           - name: seller_zip_code_prefix
-            description: zip code prefix associated with the seller’s location
+            description: zip code prefix associated with the sellers location
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    alias: raw_sellers_seller_zip_code_prefix_not_null_error
+              - relationships:
+                  arguments:
+                    to: source("olist_source_data", "raw_geolocation")
+                    field: geolocation_zip_code_prefix
+                  config:
+                    severity: warn
+                    store_failures: true
+                    alias: raw_sellers_seller_zip_code_prefix_relationships_warn
 
           - name: seller_city
             description: city where the seller is located
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    alias: raw_sellers_seller_city_not_null_error
 
           - name: seller_state
             description: state where the seller operates
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    alias: raw_sellers_seller_state_not_null_error
 
           - name: load_ts
             description: timestamp when the record was loaded into the system
             tests:
-              - not_null
-
-      - name: raw_geolocation
-        description: contains geographic location details mapped to zip code prefixes
-        columns:
-          - name: geolocation_zip_code_prefix
-            description: zip code prefix used to identify geographic area
-            tests:
-              - not_null
-
-          - name: geolocation_lat
-            description: latitude coordinate of the location
-            tests:
-              - not_null
-
-          - name: geolocation_long
-            description: longitude coordinate of the location
-            tests:
-              - not_null
-
-          - name: geolocation_city
-            description: city corresponding to the zip code prefix
-            tests:
-              - not_null
-
-          - name: geolocation_state
-            description: state corresponding to the zip code prefix
-            tests:
-              - not_null
-
-          - name: load_ts
-            description: timestamp when the record was loaded into the system
-            tests:
-              - not_null
+              - not_null:
+                  config:
+                    alias: raw_sellers_load_ts_not_null_error
 
       - name: raw_product_category
         description: maps product category names to their english equivalents
@@ -119,10 +175,19 @@ sources:
           - name: product_category_name
             description: original product category name
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    alias: raw_raw_product_category_product_category_name_not_null_error
 
           - name: product_category_name_english
             description: english translation of the product category name
+
+          - name: load_ts
+            description: timestamp when the record was loaded into the system
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_raw_product_category_load_ts_not_null_error
 
       - name: raw_product
         description: contains product details including category, dimensions, and attributes
@@ -130,13 +195,30 @@ sources:
           - name: product_id
             description: unique identifier for each product
             tests:
-              - not_null
-              - unique
+              - not_null:
+                  config:
+                    alias: raw_product_product_id_not_null_error
+              - unique:
+                  config:
+                    alias: raw_product_product_id_unique_error
 
           - name: product_category_name
-            description: category to which the product belongs
+            description: category to which the product belongs.
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: error
+                    error_if: ">700"
+                    warn_if: ">1"
+                    alias: raw_product_product_category_name_not_null_error
+              - relationships:
+                  arguments:
+                    to: source("olist_source_data", "raw_product_category")
+                    field: product_category_name
+                  config:
+                    severity: warn
+                    store_failures: true
+                    alias: raw_product_product_category_name_relationships_warn
 
           - name: product_name_lenght
             description: length of the product name text
@@ -161,3 +243,312 @@ sources:
 
           - name: load_ts
             description: timestamp when the record was loaded into the system
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_product_load_ts_not_null_error
+
+      - name: raw_orders
+        description: contains order lifecycle details including status and timestamps
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              arguments:
+                combination_of_columns:
+                  - order_id
+                  - customer_id
+              config:
+                alias: raw_orders_order_id_customer_id_unique_combination_of_columns_error
+
+        columns:
+          - name: order_id
+            description: unique identifier for each order
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_orders_order_id_not_null_error
+              - unique:
+                  config:
+                    alias: raw_orders_order_id_unique_error
+
+          - name: customer_id
+            description: identifier of the customer who placed the order
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_orders_customer_id_not_null_error
+              - relationships:
+                  arguments:
+                    to: source("olist_source_data", "raw_customers")
+                    field: customer_id
+                  config:
+                    severity: warn
+                    store_failures: true
+                    alias: raw_orders_customer_id_relationships_warn
+
+          - name: order_status
+            description: current status of the order
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_orders_order_status_not_null_error
+              - accepted_values:
+                  arguments:
+                    values:
+                      - approved
+                      - canceled
+                      - created
+                      - delivered
+                      - invoiced
+                      - processing
+                      - shipped
+                      - unavailable
+                  config:
+                    alias: raw_orders_order_status_accepted_values_error
+
+          - name: order_purchase_timestamp
+            description: timestamp when the order was placed
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_orders_order_purchase_timestamp_not_null_error
+
+          - name: order_approved_at
+            description: timestamp when the order was approved
+
+          - name: order_delivered_carrier_date
+            description: timestamp when the order was handed to the carrier
+
+          - name: order_delivered_customer_date
+            description: timestamp when the order was delivered to the customer
+
+          - name: order_estimated_delivery_date
+            description: estimated delivery date for the order
+
+          - name: load_ts
+            description: timestamp when the record was loaded into the system
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_orders_load_ts_not_null_error
+
+      - name: raw_order_items
+        description: contains item-level details for each order including product and seller information
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              arguments:
+                combination_of_columns:
+                  - order_id
+                  - order_item_id
+              config:
+                alias: raw_order_items_order_id_order_item_id_unique_combination_of_columns_error
+
+        columns:
+          - name: order_id
+            description: identifier of the order
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_items_order_id_not_null_error
+              - relationships:
+                  arguments:
+                    to: source("olist_source_data","raw_orders")
+                    field: order_id
+                  config:
+                    severity: warn
+                    store_failures: true
+                    alias: raw_order_items_order_id_relationships_warn
+
+          - name: order_item_id
+            description: unique identifier for each item within an order
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_items_order_item_id_not_null_error
+
+          - name: product_id
+            description: identifier of the product in the order item
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_items_product_id_not_null_error
+              - relationships:
+                  arguments:
+                    to: source("olist_source_data", "raw_product")
+                    field: product_id
+                  config:
+                    severity: warn
+                    store_failures: true
+                    alias: raw_order_items_product_id_relationships_warn
+
+          - name: seller_id
+            description: identifier of the seller providing the product
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_items_seller_id_not_null_error
+              - relationships:
+                  arguments:
+                    to: source("olist_source_data", "raw_sellers")
+                    field: seller_id
+                  config:
+                    severity: warn
+                    store_failures: true
+                    alias: raw_order_items_seller_id_relationships_warn
+
+          - name: shipping_limit_date
+            description: deadline for the seller to ship the item
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_items_shipping_limit_date_not_null_error
+
+          - name: price
+            description: price of the order item
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_items_price_not_null_error
+
+          - name: freight_value
+            description: shipping cost associated with the item
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_items_freight_value_not_null_error
+
+          - name: load_ts
+            description: timestamp when the record was loaded into the system
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_items_load_ts_not_null_error
+
+      - name: raw_order_payments
+        description: contains payment details associated with each order
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              arguments:
+                combination_of_columns:
+                  - order_id
+                  - payment_sequential
+              config:
+                alias: raw_order_payments_order_id_payment_sequential_unique_combination_of_columns_error
+
+        columns:
+          - name: order_id
+            description: identifier of the order
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_payments_order_id_not_null_error
+              - relationships:
+                  arguments:
+                    to: source("olist_source_data","raw_orders")
+                    field: order_id
+                  config:
+                    severity: warn
+                    store_failures: true
+                    alias: raw_order_payments_order_id_relationships_warn
+
+          - name: payment_sequential
+            description: sequence number of the payment for the order
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_payments_payment_sequential_not_null_error
+
+          - name: payment_type
+            description: method used for the payment
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_payments_payment_type_not_null_error
+              - accepted_values:
+                  arguments:
+                    values:
+                      - boleto
+                      - credit_card
+                      - debit_card
+                      - not_defined
+                      - voucher
+                  config:
+                    alias: raw_order_payments_payment_type_accepted_values_error
+
+          - name: payment_installments
+            description: number of installments used for payment
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_payments_payment_installments_not_null_error
+
+          - name: payment_value
+            description: total payment amount
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_payments_payment_value_not_null_error
+
+          - name: load_ts
+            description: timestamp when the record was loaded into the system
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_payments_load_ts_not_null_error
+
+      - name: raw_order_reviews
+        description: >
+          Contains customer review details for orders including scores and comments.
+          Not all orders have reviews. Review-related fields may be null.
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              arguments:
+                combination_of_columns:
+                  - review_id
+                  - order_id
+              config:
+                alias: raw_order_reviews_review_id_order_id_unique_combination_of_columns_error
+
+        columns:
+          - name: review_id
+            description: unique identifier for each review
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_reviews_review_id_not_null_error
+
+          - name: order_id
+            description: identifier of the order being reviewed
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_reviews_order_id_not_null_error
+              - relationships:
+                  arguments:
+                    to: source("olist_source_data","raw_orders")
+                    field: order_id
+                  config:
+                    severity: warn
+                    store_failures: true
+                    alias: raw_order_reviews_order_id_relationships_warn
+
+          - name: review_score
+            description: rating given by the customer
+
+          - name: review_comment_title
+            description: title of the review comment
+
+          - name: review_comment_message
+            description: detailed review message provided by the customer
+
+          - name: review_creation_date
+            description: date when the review was created
+
+          - name: review_answer_timestamp
+            description: timestamp when the review was answered
+
+          - name: load_ts
+            description: timestamp when the record was loaded into the system
+            tests:
+              - not_null:
+                  config:
+                    alias: raw_order_reviews_load_ts_not_null_error
