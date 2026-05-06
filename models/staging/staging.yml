@@ -1,1 +1,345 @@
 version: 2
+
+models:
+  - name: stg_geolocation
+    description: >
+      Staging model containing cleaned geolocation reference data mapped to zip code prefixes, cities, and 
+      states for customer and seller location analysis.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: zip_code_prefix
+        description: Zip code prefix associated with the geolocation record. This is not unique
+        config:
+          meta:
+            is_primary_key: false
+            is_business_key: false
+
+      - name: lat
+        description: Latitude coordinate of the geolocation.
+        config:
+          meta:
+            is_primary_key: false
+            is_business_key: false
+
+      - name: lng
+        description: Longitude coordinate of the geolocation.
+        config:
+          meta:
+            is_primary_key: false
+            is_business_key: false
+
+      - name: city_name
+        description: Standardized city name converted to lowercase and trimmed for consistency.
+        config:
+          meta:
+            is_primary_key: false
+            is_business_key: false
+
+      - name: state_code
+        description: Standardized state code converted to uppercase and trimmed for consistency.
+        config:
+          meta:
+            is_primary_key: false
+            is_business_key: false
+
+      - name: load_ts_utc
+        description: UTC timestamp indicating when the record was loaded into the staging layer.
+        config:
+          meta:
+            is_primary_key: false
+            is_business_key: false
+
+      - name: record_source
+        description: Source table identifier from which the geolocation record originated.
+        config:
+          meta:
+            is_primary_key: false
+            is_business_key: false
+
+  - name: stg_customers
+    description: >
+      Staging model containing cleaned and standardized customer reference data
+      used for customer analytics, order analysis, and geographic reporting.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: customer_id
+        description: Unique customer identifier associated with an individual order transaction.
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: customer_unique_id
+        description: Logical unique customer identifier used to identify repeat customers across multiple orders.
+
+      - name: zip_code_prefix
+        description: Zip code prefix associated with the customer's location.
+
+      - name: city_name
+        description: Standardized customer city name converted to lowercase and trimmed for consistency.
+
+      - name: state_code
+        description: Standardized customer state code converted to uppercase and trimmed for consistency.
+
+      - name: load_ts_utc
+        description: UTC timestamp indicating when the customer record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the customer record originated.
+
+  - name: stg_sellers
+    description: >
+      Staging model containing cleaned and standardized seller reference data
+      used for seller performance analysis, fulfillment tracking, and geographic reporting.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: seller_id
+        description: Unique identifier assigned to each seller in the marketplace.
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: zip_code_prefix
+        description: Zip code prefix associated with the seller's location.
+
+      - name: city_name
+        description: Standardized seller city name converted to lowercase and trimmed for consistency.
+
+      - name: state_code
+        description: Standardized seller state code converted to uppercase and trimmed for consistency.
+
+      - name: load_ts_utc
+        description: UTC timestamp indicating when the seller record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the seller record originated.
+
+  - name: stg_product_category
+    description: >
+      Staging model containing product category mappings between the original
+      Portuguese category names and their corresponding English translations
+      used for product and category reporting.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: product_category_name
+        description: Original product category name provided in the source dataset.
+
+      - name: product_category_name_english
+        description: English translation of the original product category name used for reporting and analytics.
+
+      - name: load_ts_utc
+        description: UTC timestamp indicating when the product category record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the product category record originated.
+
+  - name: stg_products
+    description: >
+      Staging model containing cleaned and standardized product reference data
+      including category, dimensions, weight, and product attribute details
+      used for product analytics, seller analysis, and fulfillment reporting.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: product_id
+        description: Unique identifier assigned to each product in the marketplace.
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: product_category_name
+        description: Product category name associated with the product record.
+
+      - name: product_name_lenght
+        description: Length of the product name text in characters.
+
+      - name: product_description_lenght
+        description: Length of the product description text in characters.
+
+      - name: product_photos_qty
+        description: Number of product images available for the product listing.
+
+      - name: product_weight_g
+        description: Product weight measured in grams.
+
+      - name: product_length_cm
+        description: Product length measured in centimeters.
+
+      - name: product_height_cm
+        description: Product height measured in centimeters.
+
+      - name: product_width_cm
+        description: Product width measured in centimeters.
+
+      - name: load_ts_utc
+        description: UTC timestamp indicating when the product record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the product record originated.
+
+  - name: stg_order_header
+    description: >
+      Staging model containing cleaned and standardized order header data
+      including order lifecycle timestamps, customer mapping, and order status
+      information used for order, delivery, and fulfillment analysis.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: order_id
+        description: Unique identifier assigned to each order in the marketplace.
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: customer_id
+        description: Identifier representing the customer associated with the order.
+
+      - name: order_status
+        description: Standardized order status converted to lowercase and trimmed for consistency.
+
+      - name: order_purchase_at
+        description: Timestamp indicating when the order was placed by the customer.
+
+      - name: order_approved_at
+        description: Timestamp indicating when the order payment was approved.
+
+      - name: order_handed_to_carrier_at
+        description: Timestamp indicating when the order was handed over to the carrier for delivery by seller/s.
+
+      - name: order_delivered_customer_at
+        description: Timestamp indicating when the order was delivered to the customer.
+
+      - name: order_estimated_delivery_at
+        description: Estimated delivery timestamp promised to the customer.
+
+      - name: load_ts_utc
+        description: UTC timestamp indicating when the order record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the product record originated.
+
+  - name: stg_order_items
+    description: >
+      Staging model containing cleaned and standardized order item level data
+      including product, seller, pricing, freight, and shipping information
+      used for revenue analysis, seller analytics, and fulfillment reporting.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: order_id
+        description: Unique identifier representing the order associated with the order item.
+
+      - name: order_item_id
+        description: Sequential identifier representing the individual item within an order.
+
+      - name: product_id
+        description: Unique identifier representing the product associated with the order item.
+
+      - name: seller_id
+        description: Unique identifier representing the seller fulfilling the order item.
+
+      - name: shipping_limit_at
+        description: Timestamp indicating the deadline by which the seller should handover the order item to carrier.
+
+      - name: product_price
+        description: Product price amount charged for the order item excluding freight charges.
+
+      - name: freight_value
+        description: Freight or shipping charge associated with the order item.
+
+      - name: load_ts_utc
+        description: UTC timestamp indicating when the order item record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the order item record originated.
+
+  - name: stg_order_payments
+    description: >
+      Staging model containing cleaned and standardized order payment data
+      including payment type, installment information, and payment amounts
+      used for payment analysis, revenue reconciliation, and customer payment behavior reporting.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: order_id
+        description: Unique identifier representing the order associated with the payment transaction.
+
+      - name: payment_sequential
+        description: Sequential identifier representing the payment sequence for an order with multiple payments.
+
+      - name: payment_type
+        description: Standardized payment method used for the order transaction converted to lowercase and trimmed for consistency.
+
+      - name: payment_installments
+        description: Number of installments selected by the customer for the payment transaction.
+
+      - name: payment_amount
+        description: Total payment amount associated with the payment transaction.
+
+      - name: load_ts_utc
+        description: UTC timestamp indicating when the payment record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the payment record originated.
+
+  - name: stg_order_reviews
+    description: >
+      Staging model containing cleaned and standardized customer review data
+      including review scores, review comments, and review timestamps used for
+      customer satisfaction analysis, seller performance reporting, and product review analytics.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: review_id
+        description: Unique identifier assigned to the customer review record.
+
+      - name: order_id
+        description: Unique identifier representing the order associated with the customer review.
+
+      - name: review_score
+        description: Numeric rating score provided by the customer for the order experience.
+
+      - name: review_comment_title
+        description: Title provided by for the review.
+
+      - name: review_comment_message
+        description: Detailed review comment message provided by the customer.
+
+      - name: review_creation_at
+        description: Timestamp indicating when the customer created the review.
+
+      - name: review_answer_at
+        description: Timestamp indicating when the review response or processing activity was recorded.
+
+      - name: load_ts_utc
+        description: UTC timestamp indicating when the review record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the review record originated.
