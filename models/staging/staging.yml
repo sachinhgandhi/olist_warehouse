@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: stg_geolocation
+  - name: stg_geolocations
     description: >
       Staging model containing cleaned geolocation reference data mapped to zip code prefixes, cities, and 
       states for customer and seller location analysis.
@@ -126,7 +126,7 @@ models:
       - name: record_source
         description: Source table identifier from which the seller record originated.
 
-  - name: stg_product_category
+  - name: stg_product_categories
     description: >
       Staging model containing product category mappings between the original
       Portuguese category names and their corresponding English translations
