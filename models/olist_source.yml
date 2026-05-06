@@ -17,6 +17,11 @@ sources:
               - not_null:
                   config:
                     alias: raw_geolocation_geolocation_zip_code_prefix_not_null_error
+              - unique:
+                  config:
+                    severity: warn
+                    store_failures: true
+                    alias: raw_geolocation_geolocation_zip_code_prefix_unique_error
 
           - name: geolocation_lat
             description: latitude coordinate of the location
