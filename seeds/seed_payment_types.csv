@@ -1,0 +1,6 @@
+payment_type_code,payment_type_name,payment_category,is_installment_supported,payment_description
+credit_card,Credit Card,Card,TRUE,Credit card payment with installment support
+debit_card,Debit Card,Card,FALSE,Debit card payment
+voucher,Voucher,Voucher,FALSE,Voucher-based payment
+boleto,Boleto,Bank Slip,FALSE,Boleto invoice payment method
+not_defined,Not Defined,Unknown,FALSE,Undefined or unidentified payment method

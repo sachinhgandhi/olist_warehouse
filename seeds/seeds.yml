@@ -1,0 +1,83 @@
+version: 2
+
+seeds:
+  - name: seed_order_status
+    description: >
+      Reference seed containing standardized order status definitions,
+      business classifications, revenue eligibility flags, and reporting attributes
+      used for consistent order lifecycle, fulfillment, and revenue analysis across the warehouse.
+    columns:
+      - name: order_status_code
+        description: Raw order status code received from the source system.
+
+      - name: order_status_name
+        description: Business-friendly display name representing the order status.
+
+      - name: order_status_category
+        description: High-level business classification grouping similar order statuses together.
+
+      - name: is_active_order
+        description: Indicates whether the order is currently considered active or in-progress.
+        data_type: boolean
+
+      - name: is_completed_order
+        description: Indicates whether the order lifecycle has been successfully completed.
+        data_type: boolean
+
+      - name: is_cancelled_order
+        description: Indicates whether the order was cancelled and should be treated as a cancelled transaction.
+        data_type: boolean
+
+      - name: is_booked_revenue_eligible
+        description: Indicates whether the order status is eligible to contribute toward booked revenue metrics.
+        data_type: boolean
+
+      - name: is_delivered_revenue_eligible
+        description: Indicates whether the order status is eligible to contribute toward delivered or realized revenue metrics.
+        data_type: boolean
+
+      - name: display_sequence
+        description: Numeric sequence used to control the business-defined display order of statuses in reports and dashboards.
+        data_type: number
+
+      - name: status_description
+        description: Detailed business description explaining the meaning and lifecycle stage of the order status.
+
+  - name: seed_payment_types
+    description: >
+      Reference seed containing standardized payment type definitions,
+      payment category classifications, installment eligibility indicators,
+      and business descriptions used for consistent payment reporting and analysis
+      across the warehouse.
+    columns:
+      - name: payment_type_code
+        description: Raw payment type code received from the source system.
+
+      - name: payment_type_name
+        description: Business-friendly display name representing the payment method.
+
+      - name: payment_category
+        description: High-level business classification grouping similar payment methods together.
+
+      - name: is_installment_supported
+        description: Indicates whether the payment method supports installment-based payments.
+        data_type: boolean
+
+      - name: payment_description
+        description: Detailed business description explaining the payment method and its usage characteristics.
+
+  - name: seed_brazil_states
+    description: >
+      Reference seed containing standardized Brazilian state codes,
+      state names, and regional classifications used for geographic analysis,
+      customer segmentation, seller reporting, and regional business insights
+      across the warehouse.
+    columns:
+      - name: state_code
+        description: Standardized two-character state code representing a Brazilian state.
+
+      - name: state_name
+        description: Official name of the Brazilian state associated with the state code.
+
+      - name: region_name
+        description: High-level geographic region classification associated with the Brazilian state.
