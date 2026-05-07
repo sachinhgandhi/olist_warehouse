@@ -17,7 +17,18 @@ with
             lower(trim(customer_city)) as city_name,  -- TEXT
             upper(trim(customer_state)) as state_code,  -- TEXT
             load_ts::timestamp_ntz as load_ts_utc,  -- TIMESTAMP_NTZ
-            'olist_source_data.raw_customers' as record_source
+            'olist_source_data.raw_customers' as record_source,
+            {{
+                dbt_utils.generate_surrogate_key(
+                    [
+                        "customer_id",
+                        "customer_unique_id",
+                        "zip_code_prefix",
+                        "city_name",
+                        "state_code",
+                    ]
+                )
+            }} as customer_hdiff
         from source_data
     )
 select *

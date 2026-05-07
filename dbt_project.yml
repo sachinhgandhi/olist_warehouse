@@ -45,3 +45,6 @@ models:
 
 seeds:
   +schema: seed_data
+
+snapshots:
+  +schema: snapshot

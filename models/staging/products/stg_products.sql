@@ -25,7 +25,22 @@ with
             product_height_cm::number as product_height_cm,  -- NUMBER
             product_width_cm::number as product_width_cm,  -- NUMBER
             load_ts::timestamp_ntz as load_ts_utc,  -- TIMESTAMP_NTZ
-            'olist_source_data.raw_product' as record_source
+            'olist_source_data.raw_product' as record_source,
+            {{
+                dbt_utils.generate_surrogate_key(
+                    [
+                        "product_id",
+                        "product_category_name",
+                        "product_name_length",
+                        "product_description_length",
+                        "product_photos_qty",
+                        "product_weight_g",
+                        "product_length_cm",
+                        "product_height_cm",
+                        "product_width_cm",
+                    ]
+                )
+            }} as product_hdiff
         from source_data
     )
 select *
