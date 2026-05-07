@@ -1,4 +1,4 @@
-{% snapshot snsh_sellers %}
+{% snapshot snap_sellers %}
 
     {{
         config(
@@ -9,6 +9,13 @@
         )
     }}
 
-    select *
+    select
+        seller_id,
+        zip_code_prefix,
+        city_name,
+        state_code,
+        load_ts_utc,
+        record_source,
+        seller_hdiff,
     from {{ ref("stg_sellers") }}
 {% endsnapshot %}

@@ -1,4 +1,4 @@
-{% snapshot snsh_customers %}
+{% snapshot snap_customers %}
 
     {{
         config(
@@ -9,7 +9,15 @@
         )
     }}
 
-    select *
+    select
+        customer_id,
+        customer_unique_id,
+        zip_code_prefix,
+        city_name,
+        state_code,
+        load_ts_utc,
+        record_source,
+        customer_hdiff
     from {{ ref("stg_customers") }}
 
 {% endsnapshot %}
