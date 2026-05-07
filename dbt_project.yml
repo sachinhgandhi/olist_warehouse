@@ -22,7 +22,7 @@ clean-targets: # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 tests:
-  +severity: warn
+  +severity: error
   +store_failures: true
   +schema: dq_audit
 
@@ -38,6 +38,10 @@ models:
     staging:
       +materialized: view
       +schema: staging
+
+    reference:
+      +materialized: view
+      +schema: reference
 
 seeds:
   +schema: seed_data

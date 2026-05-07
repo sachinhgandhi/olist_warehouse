@@ -91,7 +91,7 @@ models:
         tests:
           - relationships:
               arguments:
-                to: ref("seed_brazil_states")
+                to: ref("ref_brazil_states")
                 field: state_code
               config:
                 severity: error
@@ -131,7 +131,7 @@ models:
         tests:
           - relationships:
               arguments:
-                to: ref("seed_brazil_states")
+                to: ref("ref_brazil_states")
                 field: state_code
               config:
                 severity: error
@@ -238,7 +238,7 @@ models:
         tests:
           - relationships:
               arguments:
-                to: ref("seed_order_status")
+                to: ref("ref_order_status")
                 field: order_status_code
               config:
                 severity: error
@@ -324,7 +324,7 @@ models:
         tests:
           - relationships:
               arguments:
-                to: ref("seed_payment_types")
+                to: ref("ref_payment_types")
                 field: payment_type_code
               config:
                 severity: error
