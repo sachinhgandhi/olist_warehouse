@@ -7,7 +7,11 @@ with
         select
             seller_id as seller_id,  -- TEXT 
             trim(seller_zip_code_prefix) as zip_code_prefix,  -- TEXT
-            lower(trim(seller_city)) as city_name,  -- TEXT
+            translate(
+                lower(trim(seller_city)),
+                'áàãâäéèêëíìîïóòõôöúùûüç',
+                'aaaaaeeeeiiiiooooouuuuc'
+            ) as city_name,  -- TEXT
             upper(trim(seller_state)) as state_code,  -- TEXT
             load_ts::timestamp_ntz as load_ts_utc,  -- TIMESTAMP_NTZ
             'olist_source_data.raw_sellers' as record_source,

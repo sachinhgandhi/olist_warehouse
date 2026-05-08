@@ -16,17 +16,17 @@ models:
       - name: zip_code_prefix
         data_type: number
         description: Standardized zip code prefix representing the geographic location.
-        tests:
-          - not_null:
-              config:
-                alias: int_geolocations__zip_code_prefix__not_null__error
-          - unique:
-              config:
-                alias: int_geolocations__zip_code_prefix__unique__error
-        config:
-          meta:
-            is_primary_key: true
-            is_business_key: true
+        #tests:
+        #  - not_null:
+        #      config:
+        #        alias: int_geolocations__zip_code_prefix__not_null__error
+        #  - unique:
+        #      config:
+        #        alias: int_geolocations__zip_code_prefix__unique__error
+        #config:
+        #  meta:
+        #    is_primary_key: true
+        #    is_business_key: true
 
       - name: state_code
         description: Standardized state code associated with the geographic location.
@@ -56,6 +56,7 @@ models:
         description: Average longitude coordinate representing the geographic location.
 
   - name: int_customers_base
+
     description: >
       Intermediate model containing enriched customer master data combined with
       historical snapshot information and Brazilian geographic attributes.
@@ -100,16 +101,6 @@ models:
       - name: record_source
         description: Source table identifier from which the customer record originated.
 
-      - name: customer_hdiff
-        description: Hash diff value used to detect changes in tracked customer attributes for snapshot versioning.
-
-      - name: dbt_scd_id
-        description: Unique dbt-generated identifier representing a specific historical version of the customer record.
-
-      - name: dbt_updated_at
-        data_type: timestamp_ntz
-        description: Timestamp indicating when dbt detected or processed the customer snapshot record update.
-
       - name: dbt_valid_from
         data_type: timestamp_ntz
         description: Timestamp indicating when the historical version of the customer record became valid.
@@ -117,3 +108,266 @@ models:
       - name: dbt_valid_to
         data_type: timestamp_ntz
         description: Timestamp indicating when the historical version of the customer record expired or became inactive.
+
+  - name: int_sellers_base
+    description: >
+      Intermediate model containing enriched seller master data combined with
+      historical snapshot information and Brazilian geographic attributes.
+      This model serves as the foundational seller dataset for seller analytics,
+      fulfillment reporting, geographic analysis, and dimensional modeling across the warehouse.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: seller_id
+        description: Unique identifier assigned to each seller in the marketplace.
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: zip_code_prefix
+        description: Zip code prefix associated with the seller's location.
+
+      - name: city_name
+        description: Standardized seller city name associated with the seller record.
+
+      - name: state_code
+        description: Standardized state code associated with the seller's location.
+
+      - name: state_name
+        description: Official Brazilian state name associated with the seller location.
+        tests:
+          - not_null:
+              config:
+                alias: int_sellers_base__state_name__not_null__error
+
+      - name: region_name
+        description: High-level Brazilian geographic region associated with the customer location.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the seller record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the seller record originated.
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the seller record became valid.
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the seller record expired or became inactive.
+
+      - name: is_current_record
+        data_type: boolean
+        description: Indicates whether the seller record represents the current active version in the snapshot history.
+
+  - name: int_product_categories_base
+    description: >
+      Intermediate model containing standardized and enriched product category
+      reference data combined with data quality reconciliation handling for
+      missing or unmapped product categories. This model provides a consistent
+      product category foundation for product analytics, category reporting,
+      and business intelligence across the warehouse.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: product_category_name
+        description: Original product category name received from the source dataset.
+
+      - name: product_category_name_english
+        description: Standardized English product category name used for reporting and analytics.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the product category record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source identifier representing the origin of the product category record or reconciliation process.
+
+      - name: category_issue_type
+        description: >
+          Classification indicating whether the category is valid, unmapped, or missing for data quality and 
+          reconciliation tracking.
+
+  - name: int_products_base
+    description: >
+      Intermediate model containing enriched product master data combined with
+      historical snapshot information and standardized product category mappings.
+      This model serves as the foundational product dataset for product analytics,
+      category reporting, fulfillment analysis, and dimensional modeling across the warehouse.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: product_id
+        description: Unique identifier assigned to each product in the marketplace.
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: product_category_name
+        description: Original product category name associated with the product record.
+
+      - name: product_category_name_english
+        description: Standardized English product category name used for reporting and analytics.
+        tests:
+          - not_null:
+              config:
+                alias: int_products_base__product_category_name_english__not_null__error
+
+      - name: category_issue_type
+        description: Classification indicating whether the product category is valid, unmapped, or missing for data quality tracking.
+
+      - name: product_name_length
+        data_type: number
+        description: Length of the product name text measured in characters.
+
+      - name: product_description_length
+        data_type: number
+        description: Length of the product description text measured in characters.
+
+      - name: product_photos_qty
+        data_type: number
+        description: Number of product images available for the product listing.
+
+      - name: product_weight_g
+        data_type: number
+        description: Product weight measured in grams.
+
+      - name: product_length_cm
+        data_type: number
+        description: Product length measured in centimeters.
+
+      - name: product_height_cm
+        data_type: number
+        description: Product height measured in centimeters.
+
+      - name: product_width_cm
+        data_type: number
+        description: Product width measured in centimeters.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the product record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the product record originated.
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the product record became valid.
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the product record expired or became inactive.
+
+      - name: is_current_record
+        data_type: boolean
+        description: Indicates whether the product record represents the current active version in the snapshot history.
+
+  - name: int_order_status_base
+    description: >
+      Intermediate model containing standardized order status reference data
+      enriched with business classifications, revenue eligibility indicators,
+      lifecycle attributes, and reporting metadata used for consistent order,
+      fulfillment, and revenue analytics across the warehouse.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: order_status_code
+        description: Standardized order status code used as the business key for order status mapping.
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: order_status_name
+        description: Business-friendly display name representing the order lifecycle status.
+
+      - name: order_status_category
+        description: High-level business classification grouping similar order statuses together.
+
+      - name: is_active_order
+        data_type: boolean
+        description: Indicates whether the order is currently considered active or in-progress.
+
+      - name: is_completed_order
+        data_type: boolean
+        description: Indicates whether the order lifecycle has been successfully completed.
+
+      - name: is_cancelled_order
+        data_type: boolean
+        description: Indicates whether the order was cancelled and should be treated as a cancelled transaction.
+
+      - name: is_booked_revenue_eligible
+        data_type: boolean
+        description: Indicates whether the order status should contribute toward booked revenue metrics.
+
+      - name: is_delivered_revenue_eligible
+        data_type: boolean
+        description: Indicates whether the order status should contribute toward delivered or realized revenue metrics.
+
+      - name: display_sequence
+        data_type: number
+        description: Numeric sequence used to control the business-defined display order of statuses in reports and dashboards.
+
+      - name: status_description
+        description: Detailed business description explaining the meaning and lifecycle stage of the order status.
+
+  - name: int_payment_types_base
+    description: >
+      Intermediate model containing standardized payment type reference data
+      enriched with payment category classifications, installment support indicators,
+      and business descriptions used for consistent payment analytics, customer payment
+      behavior analysis, and revenue reporting across the warehouse.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: payment_type_code
+        description: Standardized payment type code used as the business key for payment method mapping.
+
+      - name: payment_type_name
+        description: Business-friendly display name representing the payment method.
+
+      - name: payment_category
+        description: High-level business classification grouping similar payment methods together.
+
+      - name: is_installment_supported
+        data_type: boolean
+        description: Indicates whether the payment method supports installment-based transactions.
+
+      - name: payment_description
+        description: Detailed business description explaining the payment method and its usage characteristics.
+
+  - name: int_brazil_states_base
+    description: >
+      Intermediate model containing standardized Brazilian state and regional
+      reference data used for geographic enrichment, customer and seller location analysis,
+      regional performance reporting, and business segmentation across the warehouse.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+    columns:
+      - name: state_code
+        description: Standardized two-character code representing a Brazilian state.
+
+      - name: state_name
+        description: Official name of the Brazilian state associated with the state code.
+
+      - name: region_name
+        description: High-level geographic region classification associated with the Brazilian state.

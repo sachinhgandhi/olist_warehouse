@@ -14,7 +14,11 @@ with
             trim(geolocation_zip_code_prefix) as zip_code_prefix,
             geolocation_lat::float as lat,
             geolocation_lng::float as lng,
-            lower(trim(geolocation_city)) as city_name,
+            translate(
+                lower(trim(geolocation_city)),
+                'áàãâäéèêëíìîïóòõôöúùûüç',
+                'aaaaaeeeeiiiiooooouuuuc'
+            ) as city_name,
             upper(trim(geolocation_state)) as state_code,
             load_ts::timestamp_ntz as load_ts_utc,
             'olist_source_data.raw_geolocation' as record_source

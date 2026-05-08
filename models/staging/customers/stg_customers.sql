@@ -14,7 +14,11 @@ with
             customer_id as customer_id,  -- TEXT
             customer_unique_id as customer_unique_id,  -- TEXT
             trim(customer_zip_code) as zip_code_prefix,  -- TEXT
-            lower(trim(customer_city)) as city_name,  -- TEXT
+            translate(
+                lower(trim(customer_city)),
+                'áàãâäéèêëíìîïóòõôöúùûüç',
+                'aaaaaeeeeiiiiooooouuuuc'
+            ) as city_name,  -- TEXT
             upper(trim(customer_state)) as state_code,  -- TEXT
             load_ts::timestamp_ntz as load_ts_utc,  -- TIMESTAMP_NTZ
             'olist_source_data.raw_customers' as record_source,

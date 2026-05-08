@@ -8,9 +8,6 @@ with
             state_code,
             load_ts_utc,
             record_source,
-            customer_hdiff,
-            dbt_scd_id,
-            dbt_updated_at,
             dbt_valid_from,
             dbt_valid_to
         from {{ ref("snap_customers") }}
@@ -25,11 +22,11 @@ select
     braz_states.region_name,
     cust_snap.load_ts_utc,
     cust_snap.record_source,
-    cust_snap.customer_hdiff,
-    cust_snap.dbt_scd_id,
-    cust_snap.dbt_updated_at,
     cust_snap.dbt_valid_from,
-    cust_snap.dbt_valid_to
+    cust_snap.dbt_valid_to,
+    case
+        when cust_snap.dbt_valid_to is null then true else false
+    end as is_current_record
 from cust_snap
 left join
     {{ ref("ref_brazil_states") }} as braz_states
