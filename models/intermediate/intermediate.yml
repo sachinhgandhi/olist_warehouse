@@ -1,0 +1,119 @@
+version: 2
+
+models:
+  - name: int_geolocations
+    description: >
+      Intermediate model containing standardized and deduplicated geolocation data
+      enriched with Brazilian state and regional information. This model consolidates
+      geographic reference data at the zip code, city, and state level for use in
+      customer, seller, delivery, and regional analytics across the warehouse.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: zip_code_prefix
+        data_type: number
+        description: Standardized zip code prefix representing the geographic location.
+        tests:
+          - not_null:
+              config:
+                alias: int_geolocations__zip_code_prefix__not_null__error
+          - unique:
+              config:
+                alias: int_geolocations__zip_code_prefix__unique__error
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: state_code
+        description: Standardized state code associated with the geographic location.
+
+      - name: state_name
+        description: Official Brazilian state name associated with the state code.
+        tests:
+          - not_null:
+              config:
+                alias: int_geolocations__state_name__not_null__error
+
+      - name: region_name
+        description: High-level Brazilian geographic region associated with the state.
+
+      - name: city_name
+        description: Standardized city name associated with the geographic location.
+
+      - name: record_source
+        description: Source table identifier from which the geolocation data originated.
+
+      - name: lat
+        data_type: number
+        description: Average latitude coordinate representing the geographic location.
+
+      - name: lng
+        data_type: number
+        description: Average longitude coordinate representing the geographic location.
+
+  - name: int_customers_base
+    description: >
+      Intermediate model containing enriched customer master data combined with
+      historical snapshot information and Brazilian geographic attributes.
+      This model serves as the foundational customer dataset for dimensional
+      modeling, customer analytics, geographic reporting, and historical analysis
+      across the warehouse.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: customer_id
+        description: Unique customer identifier associated with an individual order transaction.
+
+      - name: customer_unique_id
+        description: Logical unique customer identifier used to identify repeat customers across multiple orders.
+
+      - name: zip_code_prefix
+        data_type: number
+        description: Zip code prefix associated with the customer's location.
+
+      - name: city_name
+        description: Standardized customer city name associated with the customer record.
+
+      - name: state_code
+        description: Standardized state code associated with the customer's location.
+
+      - name: state_name
+        description: Official Brazilian state name associated with the customer location.
+        tests:
+          - not_null:
+              config:
+                alias: int_customers_base__state_name__not_null__error
+
+      - name: region_name
+        description: High-level Brazilian geographic region associated with the customer location.
+
+      - name: load_ts_utc
+        description: UTC timestamp indicating when the customer record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the customer record originated.
+
+      - name: customer_hdiff
+        description: Hash diff value used to detect changes in tracked customer attributes for snapshot versioning.
+
+      - name: dbt_scd_id
+        description: Unique dbt-generated identifier representing a specific historical version of the customer record.
+
+      - name: dbt_updated_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when dbt detected or processed the customer snapshot record update.
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the customer record became valid.
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the customer record expired or became inactive.

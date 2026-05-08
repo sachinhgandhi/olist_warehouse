@@ -20,6 +20,6 @@ select
     geo_dist.lat,
     geo_dist.lng
 from geolocation_distinct geo_dist
-inner join
+left join
     {{ ref("ref_brazil_states") }} as br_st on geo_dist.state_code = br_st.state_code
 order by geo_dist.state_code, geo_dist.city_name, geo_dist.zip_code_prefix
