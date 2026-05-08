@@ -43,6 +43,10 @@ models:
       +materialized: view
       +schema: reference
 
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+
 seeds:
   +schema: seed_data
 
