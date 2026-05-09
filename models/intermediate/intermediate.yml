@@ -371,3 +371,60 @@ models:
 
       - name: region_name
         description: High-level geographic region classification associated with the Brazilian state.
+
+  - name: int_order_items_base
+    description: >
+      Intermediate model containing enriched order item level transactional data
+      including product, seller, pricing, freight, shipping, and derived revenue attributes.
+      This model serves as the foundational dataset for revenue analytics, seller performance,
+      fulfillment analysis, and fact table construction across the warehouse.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: order_lineitem_key
+        description: Surrogate key uniquely identifying an order line item generated using order and item identifiers.
+        tests:
+          - unique:
+              config:
+                alias: int_order_items_base__order_lineitem_key__unique_error
+
+      - name: order_item_id
+        data_type: number
+        description: Sequential identifier representing the individual item within an order.
+
+      - name: product_id
+        description: Unique identifier representing the product associated with the order item.
+
+      - name: seller_id
+        description: Unique identifier representing the seller fulfilling the order item.
+
+      - name: shipping_limit_date_key
+        description: >
+          Date surrogate key derived from the shipping limit timestamp in YYYYMMDD format. 
+          Will be used to join Dim_Dates in Mart layer
+
+      - name: product_price
+        data_type: number
+        description: Product price amount charged for the order item excluding freight charges.
+
+      - name: freight_value
+        data_type: number
+        description: Freight or shipping charge associated with the order item.
+
+      - name: total_line_amount
+        data_type: number
+        description: Total monetary amount for the order item including product price and freight charges.
+
+      - name: quantity
+        data_type: number
+        description: Quantity of products associated with the order line item.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the order item record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the order item record originated.

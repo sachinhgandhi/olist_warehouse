@@ -16,7 +16,7 @@ with
         select
             order_id as order_id,  -- TEXT
             customer_id as customer_id,  -- TEXT
-            lower(trim(order_status)) as order_status,  -- TEXT
+            lower(trim(order_status)) as order_status_code,  -- TEXT
             order_purchase_timestamp::timestamp_ntz as order_purchase_at,  -- TIMESTAMP_LTZ
             order_approved_at::timestamp_ntz as order_approved_at,  -- TIMESTAMP_LTZ
             order_delivered_carrier_date::timestamp_ntz as order_handed_to_carrier_at,  -- TIMESTAMP_LTZ

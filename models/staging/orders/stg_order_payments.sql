@@ -13,7 +13,7 @@ with
         select
             order_id as order_id,  -- TEXT
             payment_sequential::number as payment_sequential,  -- NUMBER
-            lower(trim(payment_type)) as payment_type,  -- TEXT
+            lower(trim(payment_type)) as payment_type_code,  -- TEXT
             payment_installments::number as payment_installments,  -- NUMBER
             payment_value::number(18, 2) as payment_amount,  -- NUMBER
             load_ts::timestamp_ntz as load_ts_utc,  -- TIMESTAMP_LTZ

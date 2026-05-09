@@ -232,8 +232,15 @@ models:
 
       - name: customer_id
         description: Identifier representing the customer associated with the order.
+        tests:
+          - relationships:
+              arguments:
+                to: source("olist_source_data", "raw_customers")
+                field: customer_id
+              config:
+                alias: stg_order_header__customer_id__relationships__error
 
-      - name: order_status
+      - name: order_status_code
         description: Standardized order status converted to lowercase and trimmed for consistency.
         tests:
           - relationships:
@@ -278,15 +285,36 @@ models:
     columns:
       - name: order_id
         description: Unique identifier representing the order associated with the order item.
+        tests:
+          - relationships:
+              arguments:
+                to: source("olist_source_data", "raw_orders")
+                field: order_id
+              config:
+                alias: stg_order_items__order_id__relationships__error
 
       - name: order_item_id
         description: Sequential identifier representing the individual item within an order.
 
       - name: product_id
         description: Unique identifier representing the product associated with the order item.
+        tests:
+          - relationships:
+              arguments:
+                to: source("olist_source_data", "raw_product")
+                field: product_id
+              config:
+                alias: stg_order_items__product_id__relationships__error
 
       - name: seller_id
         description: Unique identifier representing the seller fulfilling the order item.
+        tests:
+          - relationships:
+              arguments:
+                to: source("olist_source_data", "raw_sellers")
+                field: seller_id
+              config:
+                alias: stg_order_items__seller_id__relationships__error
 
       - name: shipping_limit_at
         description: Timestamp indicating the deadline by which the seller should handover the order item to carrier.
@@ -315,11 +343,18 @@ models:
     columns:
       - name: order_id
         description: Unique identifier representing the order associated with the payment transaction.
+        tests:
+          - relationships:
+              arguments:
+                to: source("olist_source_data", "raw_orders")
+                field: order_id
+              config:
+                alias: stg_order_payments__order_id__relationships__error
 
       - name: payment_sequential
         description: Sequential identifier representing the payment sequence for an order with multiple payments.
 
-      - name: payment_type
+      - name: payment_type_code
         description: Standardized payment method used for the order transaction converted to lowercase and trimmed for consistency.
         tests:
           - relationships:
@@ -358,6 +393,13 @@ models:
 
       - name: order_id
         description: Unique identifier representing the order associated with the customer review.
+        tests:
+          - relationships:
+              arguments:
+                to: source("olist_source_data", "raw_orders")
+                field: order_id
+              config:
+                alias: stg_order_reviews__order_id__relationships__error
 
       - name: review_score
         description: Numeric rating score provided by the customer for the order experience.
