@@ -1,3 +1,5 @@
+{{ config(materialized="table") }}
+
 with
     order_header_staging as (
         select
@@ -14,8 +16,11 @@ with
         from {{ ref("stg_order_header") }}
     )
 select
+    {{ dbt_utils.generate_surrogate_key(["order_id", "customer_id"]) }} as order_key,
+
     order_header_staging.order_id,
     order_header_staging.customer_id,
+
     order_header_staging.order_status_code,
     ord_st.order_status_name,
     ord_st.order_status_category,
@@ -23,11 +28,66 @@ select
     {{ get_date_key_format(date_value="order_header_staging.order_purchase_at") }}
     as purchase_date_key,
     order_header_staging.order_purchase_at,
+    true as is_purchased,
 
+    {{ get_date_key_format(date_value="order_header_staging.order_approved_at") }}
+    as approved_date_key,
     order_header_staging.order_approved_at,
+    case
+        when order_header_staging.order_approved_at is not null then true else false
+    end is_approved,
+
+    {{
+        get_date_key_format(
+            date_value="order_header_staging.order_handed_to_carrier_at"
+        )
+    }} as carrier_handoff_date_key,
     order_header_staging.order_handed_to_carrier_at,
+
+    case
+        when order_header_staging.order_handed_to_carrier_at is not null
+        then true
+        else false
+    end is_handed_to_carrier,
+
+    {{
+        get_date_key_format(
+            date_value="order_header_staging.order_delivered_customer_at"
+        )
+    }} as customer_delivery_date_key,
     order_header_staging.order_delivered_customer_at,
+
+    case
+        when order_header_staging.order_delivered_customer_at is not null
+        then true
+        else false
+    end is_delivered,
+
+    {{
+        get_date_key_format(
+            date_value="order_header_staging.order_estimated_delivery_at"
+        )
+    }} as estimated_delivery_date_key,
     order_header_staging.order_estimated_delivery_at,
+
+    case
+        when order_header_staging.order_status_code = 'canceled' then true else false
+    end is_cancelled,
+
+    case
+        when order_header_staging.order_status_code = 'unavailable' then true else false
+    end is_unavailable,
+
+    case
+        when
+            order_header_staging.order_status_code = 'unavailable'
+            or order_header_staging.order_status_code = 'canceled'
+            or order_header_staging.order_status_code = 'delivered'
+            or order_header_staging.order_status_code = 'invoiced'
+        then false
+        else true
+    end is_open_order,
+
     order_header_staging.load_ts_utc,
     order_header_staging.record_source
 from order_header_staging

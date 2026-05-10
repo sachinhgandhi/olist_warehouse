@@ -25,19 +25,28 @@ select
         then true
         else false
     end as has_review_comment,
-    to_number(to_char(review_creation_at, 'YYYYMMDD')) as creation_date_key,
+
+    {{ get_date_key_format(date_value="review_creation_at") }} as creation_date_key,
     review_creation_at,
+
+    case
+        when review_answer_at is null then false else true
+    end as has_customer_responded,
+
     case
         when review_answer_at is null
         then null
-        else to_number(to_char(review_answer_at, 'YYYYMMDD'))
+        else {{ get_date_key_format(date_value="review_answer_at") }}
     end as answer_date_key,
+
     review_answer_at,
+
     case
         when review_answer_at is null
         then null
         else datediff('day', review_creation_at, review_answer_at)
     end as review_response_days,
+
     case
         when has_review_comment
         then
@@ -50,6 +59,7 @@ select
             end
         else null
     end as review_sentiment_category,
+
     load_ts_utc,
     record_source
 from order_reviews_staging

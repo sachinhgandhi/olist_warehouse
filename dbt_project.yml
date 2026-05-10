@@ -49,6 +49,9 @@ models:
     intermediate:
       +materialized: view
       +schema: intermediate
+      orders:
+        int_order_header_summary_to_delete:
+          +enabled: false
 
 seeds:
   +schema: seed_data
