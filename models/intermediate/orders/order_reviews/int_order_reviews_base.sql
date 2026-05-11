@@ -11,22 +11,33 @@ with
             load_ts_utc,
             record_source
         from {{ ref("stg_order_reviews") }}
+    ),
+    review_comm as (
+        select
+            order_id,
+            case
+                when
+                    review_comment_title is not null
+                    or review_comment_message is not null
+                then true
+                else false
+            end as has_review_answer
+        from order_reviews_staging
     )
 select
-    {{ dbt_utils.generate_surrogate_key(["order_id", "review_id"]) }}
-    as order_review_key,
+    {{
+        dbt_utils.generate_surrogate_key(
+            ["order_reviews_staging.order_id", "review_id"]
+        )
+    }} as order_review_key,
     review_id,
-    order_id,
+    order_reviews_staging.order_id,
     review_score,
     review_comment_title,
     review_comment_message,
-    case
-        when review_comment_title is not null or review_comment_message is not null
-        then true
-        else false
-    end as has_review_comment,
+    review_comm.has_review_answer,
 
-    {{ get_date_key_format(date_value="review_creation_at") }} as creation_date_key,
+    {{ get_date_key(date_value="review_creation_at") }} as creation_date_key,
     review_creation_at,
 
     case
@@ -36,7 +47,7 @@ select
     case
         when review_answer_at is null
         then null
-        else {{ get_date_key_format(date_value="review_answer_at") }}
+        else {{ get_date_key(date_value="review_answer_at") }}
     end as answer_date_key,
 
     review_answer_at,
@@ -45,10 +56,10 @@ select
         when review_answer_at is null
         then null
         else datediff('day', review_creation_at, review_answer_at)
-    end as review_response_days,
+    end as review_response_day,
 
     case
-        when has_review_comment
+        when review_comm.has_review_answer
         then
             case
                 when review_score >= 4
@@ -62,4 +73,6 @@ select
 
     load_ts_utc,
     record_source
+
 from order_reviews_staging
+left join review_comm on order_reviews_staging.order_id = review_comm.order_id

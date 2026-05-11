@@ -20,7 +20,7 @@ select
     product_id,
     seller_id,
     shipping_limit_at,
-    to_number(to_char(shipping_limit_at, 'YYYYMMDD')) as shipping_limit_date_key,
+    {{ get_date_key(date_value="shipping_limit_at") }} as shipping_limit_date_key,
     product_price,
     freight_value,
     (product_price + freight_value) as total_line_amount,

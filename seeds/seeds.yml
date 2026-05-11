@@ -69,6 +69,16 @@ seeds:
                 store_failures: true
                 alias: seed_order_status__is_cancelled_order__not_null__error
 
+      - name: is_unavailable_order
+        description: Indicates whether the order is unavailable due to stock or operational issues
+        data_type: boolean
+        tests:
+          - not_null:
+              config:
+                severity: error
+                store_failures: true
+                alias: seed_order_status__is_unavailable_order__not_null__error
+
       - name: is_booked_revenue_eligible
         description: Indicates whether the order status is eligible to contribute toward booked revenue metrics.
         data_type: boolean

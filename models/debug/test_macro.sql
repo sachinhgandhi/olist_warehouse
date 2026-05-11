@@ -1,1 +1,1 @@
-{{ get_date_key_format(date_value="12-26-1979") }}
+{{ get_date_key(date_value="12-26-1979") }}

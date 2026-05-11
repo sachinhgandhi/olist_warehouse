@@ -1,9 +1,9 @@
-order_status_code,order_status_name,order_status_category,is_active_order,is_completed_order,is_cancelled_order,is_booked_revenue_eligible,is_delivered_revenue_eligible,display_sequence,status_description
-created,Created,Open,TRUE,FALSE,FALSE,TRUE,FALSE,1,Order has been created by customer
-approved,Approved,Open,TRUE,FALSE,FALSE,TRUE,FALSE,2,Payment approved for order
-processing,Processing,Open,TRUE,FALSE,FALSE,TRUE,FALSE,3,Order under process
-invoiced,Invoiced,In Progress,TRUE,FALSE,FALSE,TRUE,FALSE,4,Invoice generated for order
-shipped,Shipped,In Transit,TRUE,FALSE,FALSE,TRUE,FALSE,5,Order shipped to carrier
-delivered,Delivered,Completed,FALSE,TRUE,FALSE,TRUE,TRUE,6,Order delivered successfully to customer
-unavailable,Unavailable,Exception,FALSE,FALSE,FALSE,FALSE,FALSE,7,Order unavailable due to stock or operational issues
-canceled,Cancelled,Cancelled,FALSE,FALSE,TRUE,FALSE,FALSE,8,Order cancelled before completion
+order_status_code,order_status_name,order_status_category,is_active_order,is_completed_order,is_cancelled_order,is_unavailable_order,is_booked_revenue_eligible,is_delivered_revenue_eligible,display_sequence,status_description
+created,Created,Open,TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,1,Order has been created by customer
+approved,Approved,Open,TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,2,Payment approved for order
+processing,Processing,Open,TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,3,Order under process
+invoiced,Invoiced,In Progress,TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,4,Invoice generated for order
+shipped,Shipped,In Transit,TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,5,Order shipped to carrier
+delivered,Delivered,Completed,FALSE,TRUE,FALSE,FALSE,TRUE,TRUE,6,Order delivered successfully to customer
+unavailable,Unavailable,Exception,FALSE,FALSE,FALSE,TRUE,FALSE,FALSE,7,Order unavailable due to stock or operational issues
+canceled,Cancelled,Cancelled,FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,8,Order cancelled before completion
