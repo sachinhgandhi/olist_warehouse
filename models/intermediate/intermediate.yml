@@ -390,10 +390,17 @@ models:
           - unique:
               config:
                 alias: int_order_items_base__order_lineitem_key__unique_error
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
 
       - name: order_item_id
         data_type: number
-        description: Sequential identifier representing the individual item within an order.
+        description: Unique identifier assigned to each order in the marketplace.
+
+      - name: order_id
+        description: Unique identifier representing the product associated with the order item.
 
       - name: product_id
         description: Unique identifier representing the product associated with the order item.
@@ -405,6 +412,9 @@ models:
         description: >
           Date surrogate key derived from the shipping limit timestamp in YYYYMMDD format. 
           Will be used to join Dim_Dates in Mart layer
+
+      - name: shipping_limit_at
+        description: Timestamp indicating the deadline by which the seller should handover the order item to carrier.
 
       - name: product_price
         data_type: number
@@ -428,3 +438,615 @@ models:
 
       - name: record_source
         description: Source table identifier from which the order item record originated.
+
+  - name: int_order_items_summary
+    description: >
+      Intermediate model containing aggregated order item level metrics summarized
+      at the order level. This model provides consolidated seller, product, quantity,
+      pricing, freight, and category metrics used for order analytics, revenue reporting,
+      fulfillment analysis, and downstream fact table construction across the warehouse.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: order_id
+        description: Unique identifier representing the customer order.
+
+      - name: total_seller_count
+        data_type: number
+        description: Total number of seller records associated with the order including duplicate sellers.
+
+      - name: distinct_seller_count
+        data_type: number
+        description: Count of unique sellers associated with the order.
+
+      - name: total_product_count
+        data_type: number
+        description: Total number of product records associated with the order including duplicate products.
+
+      - name: distinct_product_count
+        data_type: number
+        description: Count of unique products associated with the order.
+
+      - name: distinct_product_category_count
+        data_type: number
+        description: Count of unique product categories associated with the order.
+
+      - name: total_product_quantity
+        data_type: number
+        description: Total quantity of products included in the order.
+
+      - name: total_product_amount
+        data_type: number
+        description: Total monetary amount of products excluding freight charges for the order.
+
+      - name: total_freight_amount
+        data_type: number
+        description: Total freight or shipping charges associated with the order.
+
+      - name: total_order_amount
+        data_type: number
+        description: Total monetary value of the order including product and freight charges.
+
+      - name: max_shipping_limit_at
+        data_type: timestamp_ntz
+        description: Latest shipping deadline timestamp associated with the order items.
+
+  - name: int_order_payments_base
+    description: >
+      Intermediate model containing enriched order payment transactional data
+      combined with standardized payment type reference attributes. This model
+      provides payment-level details used for payment analytics, installment analysis,
+      customer payment behavior reporting, revenue reconciliation, and downstream
+      fact table construction across the warehouse.
+
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: order_payment_key
+        description: Surrogate key uniquely identifying an order payment transaction generated using order and payment sequence identifiers.
+        tests:
+          - unique:
+              config:
+                alias: int_order_payments_base__order_payment_key__unique__error
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: order_id
+        description: Unique identifier representing the customer order associated with the payment transaction.
+
+      - name: payment_sequential
+        data_type: number
+        description: Sequential identifier representing the payment sequence for an order with multiple payments.
+
+      - name: payment_type_code
+        description: Standardized payment type code associated with the payment transaction.
+
+      - name: payment_type_name
+        description: Business-friendly display name representing the payment method used for the transaction.
+        tests:
+          - not_null:
+              config:
+                alias: int_order_payments_base__payment_type_name__not_null__error
+
+      - name: payment_category
+        description: High-level business classification grouping similar payment methods together.
+
+      - name: is_installment_supported
+        data_type: boolean
+        description: Indicates whether the payment method supports installment-based transactions.
+
+      - name: payment_installments
+        data_type: number
+        description: Number of installments selected for the payment transaction.
+
+      - name: is_installment_payment
+        data_type: boolean
+        description: Indicates whether the payment transaction was processed using installment payments.
+
+      - name: payment_amount
+        data_type: number
+        description: Monetary amount associated with the payment transaction.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the payment record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the payment record originated.
+
+  - name: int_order_payments_summary
+    description: >
+      Intermediate model containing aggregated payment metrics summarized
+      at the order level. This model provides consolidated payment transaction,
+      installment, and payment amount information used for payment analytics,
+      customer payment behavior analysis, revenue reconciliation, and downstream
+      fact table construction across the warehouse.
+
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: order_id
+        description: Unique identifier representing the customer order.
+
+      - name: payment_record_count
+        data_type: number
+        description: Total number of payment transaction records associated with the order.
+
+      - name: average_installments
+        data_type: number
+        description: Average number of payment installments associated with the order transactions.
+
+      - name: max_installments
+        data_type: number
+        description: Maximum number of payment installments used among the order transactions.
+
+      - name: total_payment_received
+        data_type: number
+        description: Total monetary payment amount received for the order across all payment transactions.
+
+  - name: int_order_reviews_base
+    description: >
+      Intermediate model containing enriched customer review transactional data
+      combined with derived sentiment, response behavior, and review lifecycle attributes.
+      This model provides review-level analytics used for customer satisfaction analysis,
+      seller performance reporting, sentiment analysis, and downstream fact table construction
+      across the warehouse.
+
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: order_review_key
+        description: Surrogate key uniquely identifying an order review record generated using order and review identifiers.
+        tests:
+          - unique:
+              config:
+                alias: int_order_reviews_base__order_review_key__unique__error
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: review_id
+        data_type: number
+        description: Unique identifier assigned to the customer review record.
+
+      - name: order_id
+        description: Unique identifier representing the customer order associated with the review.
+
+      - name: review_score
+        data_type: number
+        description: Numeric rating score provided by the customer for the order experience.
+
+      - name: review_comment_title
+        description: Title or summary provided by the customer for the review.
+
+      - name: review_comment_message
+        description: Detailed review comment message provided by the customer.
+
+      - name: has_review_answer
+        data_type: boolean
+        description: Indicates whether the review contains a title or detailed review comment message.
+
+      - name: creation_date_key
+        data_type: number
+        description: Date surrogate key derived from the review creation timestamp in YYYYMMDD format.
+
+      - name: review_creation_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the customer created the review.
+
+      - name: has_customer_responded
+        data_type: boolean
+        description: Indicates whether a response or follow-up activity exists for the review.
+
+      - name: answer_date_key
+        data_type: number
+        description: Date surrogate key derived from the review response timestamp in YYYYMMDD format.
+
+      - name: review_answer_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the review response or processing activity was recorded.
+
+      - name: review_response_day
+        data_type: number
+        description: Number of days between review creation and review response timestamps.
+
+      - name: review_sentiment_category
+        description: Derived sentiment classification of the review based on the review score and review content availability.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the review record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the review record originated.
+
+  - name: int_order_reviews_summary
+
+    description: >
+      Intermediate model containing aggregated customer review metrics summarized
+      at the order level. This model provides consolidated review scoring and customer
+      response metrics used for customer satisfaction analysis, seller performance reporting,
+      sentiment analysis, and downstream fact table construction across the warehouse.
+
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: order_id
+        description: Unique identifier representing the customer order associated with the review metrics.
+
+      - name: avg_review_score
+        data_type: number
+        description: Average customer review score calculated across all reviews associated with the order.
+
+      - name: total_repsonded_review_count
+        data_type: number
+        description: Total number of review records associated with the order containing customer review responses or comments.
+
+      - name: latest_review_score
+        data_type: number
+        description: Most recent customer review score associated with the order based on the latest review response timestamp.
+
+  - name: int_order_header_base
+
+    description: >
+      Intermediate model containing enriched order header transactional data combined
+      with standardized order status attributes and derived lifecycle indicators.
+      This model serves as the foundational order dataset for order analytics,
+      fulfillment reporting, delivery tracking, and downstream fact table construction
+      across the warehouse.
+
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: order_key
+        description: Surrogate key uniquely identifying a customer order generated using order and customer identifiers.
+        tests:
+          - unique:
+              config:
+                alias: int_order_header_base__order_key__unique__error
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: order_id
+        description: Unique identifier representing the customer order.
+
+      - name: customer_id
+        description: Unique identifier representing the customer associated with the order.
+
+      - name: order_status_code
+        description: Standardized order status code associated with the order lifecycle stage.
+
+      - name: order_status_name
+        description: Business-friendly display name representing the order lifecycle status.
+        tests:
+          - not_null:
+              config:
+                alias: int_order_header_base__order_status_name__not_null__error
+
+      - name: order_status_category
+        description: High-level business classification grouping similar order statuses together.
+
+      - name: purchase_date_key
+        data_type: number
+        description: Date surrogate key derived from the order purchase timestamp in YYYYMMDD format.
+
+      - name: order_purchase_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the customer placed the order.
+
+      - name: is_purchased
+        data_type: boolean
+        description: Indicates whether the order has been successfully placed by the customer.
+
+      - name: approved_date_key
+        data_type: number
+        description: Date surrogate key derived from the order approval timestamp in YYYYMMDD format.
+
+      - name: order_approved_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the order payment was approved.
+
+      - name: is_approved
+        data_type: boolean
+        description: Indicates whether the order payment has been approved.
+
+      - name: carrier_handoff_date_key
+        data_type: number
+        description: Date surrogate key derived from the carrier handoff timestamp in YYYYMMDD format.
+
+      - name: order_handed_to_carrier_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the order was handed over to the delivery carrier.
+
+      - name: is_handed_to_carrier
+        data_type: boolean
+        description: Indicates whether the order has been handed over to the carrier for delivery.
+
+      - name: customer_delivery_date_key
+        data_type: number
+        description: Date surrogate key derived from the customer delivery timestamp in YYYYMMDD format.
+
+      - name: order_delivered_customer_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the order was delivered to the customer.
+
+      - name: is_delivered
+        data_type: boolean
+        description: Indicates whether the order has been successfully delivered to the customer.
+
+      - name: estimated_delivery_date_key
+        data_type: number
+        description: Date surrogate key derived from the estimated delivery timestamp in YYYYMMDD format.
+
+      - name: order_estimated_delivery_at
+        data_type: timestamp_ntz
+        description: Estimated delivery timestamp promised to the customer.
+
+      - name: is_cancelled
+        data_type: boolean
+        description: Indicates whether the order was cancelled.
+
+      - name: is_unavailable
+        data_type: boolean
+        description: Indicates whether the order became unavailable due to fulfillment or stock issues.
+
+      - name: is_open_order
+        data_type: boolean
+        description: Indicates whether the order is currently active and not yet completed, cancelled, or unavailable.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the order record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the order record originated.
+
+  - name: int_order_header_summary
+
+    description: >
+      Intermediate model containing enriched order-level summary metrics derived
+      from order header, order item, payment, and review datasets. This model
+      provides consolidated operational, fulfillment, delivery, payment,
+      reconciliation, seller, and customer sentiment metrics used for downstream
+      fact table construction and business reporting across the warehouse.
+
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: order_key
+        description: Surrogate key uniquely identifying a customer order generated using order and customer identifiers.
+
+      - name: order_id
+        description: Unique identifier representing the customer order.
+
+      - name: customer_id
+        description: Unique identifier representing the customer associated with the order.
+
+      - name: order_status_code
+        description: Standardized order status code associated with the order lifecycle stage.
+
+      - name: order_status_name
+        description: Business-friendly display name representing the order lifecycle status.
+
+      - name: order_status_category
+        description: High-level business classification grouping similar order statuses together.
+
+      - name: purchase_date_key
+        data_type: number
+        description: Date surrogate key derived from the order purchase timestamp in YYYYMMDD format.
+
+      - name: order_purchase_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the customer placed the order.
+
+      - name: is_purchased
+        data_type: boolean
+        description: Indicates whether the order has been successfully placed by the customer.
+
+      - name: approved_date_key
+        data_type: number
+        description: Date surrogate key derived from the order approval timestamp in YYYYMMDD format.
+
+      - name: order_approved_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the order payment was approved.
+
+      - name: is_approved
+        data_type: boolean
+        description: Indicates whether the order payment has been approved.
+
+      - name: diff_between_purchase_approved_day
+        data_type: number
+        description: Number of days between order purchase and payment approval.
+
+      - name: carrier_handoff_date_key
+        data_type: number
+        description: Date surrogate key derived from the carrier handoff timestamp in YYYYMMDD format.
+
+      - name: order_handed_to_carrier_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the order was handed over to the delivery carrier.
+
+      - name: is_handed_to_carrier
+        data_type: boolean
+        description: Indicates whether the order has been handed over to the carrier for delivery.
+
+      - name: diff_between_approved_carrier_del_day
+        data_type: number
+        description: Number of days between payment approval and carrier handoff.
+
+      - name: customer_delivery_date_key
+        data_type: number
+        description: Date surrogate key derived from the customer delivery timestamp in YYYYMMDD format.
+
+      - name: order_delivered_customer_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the order was delivered to the customer.
+
+      - name: is_delivered
+        data_type: boolean
+        description: Indicates whether the order has been successfully delivered to the customer.
+
+      - name: diff_between_carrier_customer_del_day
+        data_type: number
+        description: Number of days between carrier handoff and customer delivery.
+
+      - name: estimated_delivery_date_key
+        data_type: number
+        description: Date surrogate key derived from the estimated delivery timestamp in YYYYMMDD format.
+
+      - name: order_estimated_delivery_at
+        data_type: timestamp_ntz
+        description: Estimated delivery timestamp promised to the customer.
+
+      - name: is_cancelled
+        data_type: boolean
+        description: Indicates whether the order was cancelled.
+
+      - name: is_unavailable
+        data_type: boolean
+        description: Indicates whether the order became unavailable due to fulfillment or stock issues.
+
+      - name: is_open_order
+        data_type: boolean
+        description: Indicates whether the order is currently active and not yet completed, cancelled, or unavailable.
+
+      - name: is_delivered_on_time
+        data_type: boolean
+        description: Indicates whether the order was delivered on or before the estimated delivery date.
+
+      - name: late_delivery_day
+        data_type: number
+        description: Number of delayed delivery days beyond the estimated delivery date.
+
+      - name: total_delivery_day
+        data_type: number
+        description: Total number of days taken from order purchase to customer delivery.
+
+      - name: is_open_past_estimated_delivery
+        data_type: boolean
+        description: Indicates whether an open order has exceeded the estimated delivery date.
+
+      - name: distinct_seller_count
+        data_type: number
+        description: Count of unique sellers associated with the order.
+
+      - name: has_multiple_sellers
+        data_type: boolean
+        description: Indicates whether the order contains products fulfilled by multiple sellers.
+
+      - name: is_seller_handoff_on_time
+        data_type: boolean
+        description: Indicates whether the seller handed over the shipment to the carrier within the shipping deadline.
+
+      - name: total_product_count
+        data_type: number
+        description: Total number of product records associated with the order including duplicate products.
+
+      - name: distinct_product_count
+        data_type: number
+        description: Count of unique products associated with the order.
+
+      - name: has_multiple_products
+        data_type: boolean
+        description: Indicates whether the order contains multiple distinct products.
+
+      - name: distinct_product_category_count
+        data_type: number
+        description: Count of unique product categories associated with the order.
+
+      - name: has_multiple_categories
+        data_type: boolean
+        description: Indicates whether the order contains products from multiple categories.
+
+      - name: total_product_quantity
+        data_type: number
+        description: Total quantity of products included in the order.
+
+      - name: total_product_amount
+        data_type: number
+        description: Total monetary amount of products excluding freight charges for the order.
+
+      - name: total_freight_amount
+        data_type: number
+        description: Total freight or shipping charges associated with the order.
+
+      - name: total_order_amount
+        data_type: number
+        description: Total monetary value of the order including product and freight charges.
+
+      - name: payment_record_count
+        data_type: number
+        description: Total number of payment transaction records associated with the order.
+
+      - name: average_installments
+        data_type: number
+        description: Average number of payment installments associated with the order transactions.
+
+      - name: max_installments
+        data_type: number
+        description: Maximum number of payment installments used among the order transactions.
+
+      - name: total_payment_received
+        data_type: number
+        description: Total monetary payment amount received for the order across all payment transactions.
+
+      - name: payment_reconciliation_diff
+        data_type: number
+        description: Difference between total order amount and total payment received for reconciliation analysis.
+
+      - name: payment_mismatch_flag
+        data_type: boolean
+        description: Indicates whether a reconciliation mismatch exists between order amount and received payments.
+
+      - name: avg_review_score
+        data_type: number
+        description: Average customer review score calculated across all reviews associated with the order.
+
+      - name: total_repsonded_review_count
+        data_type: number
+        description: Total number of review records associated with the order containing customer review responses or comments.
+
+      - name: has_multiple_reviews
+        data_type: boolean
+        description: Indicates whether the order contains multiple review records.
+
+      - name: latest_review_score
+        data_type: number
+        description: Most recent customer review score associated with the order.
+
+      - name: customer_sentiment
+        description: Derived customer sentiment classification based on the average review score.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the order record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the order record originated.

@@ -15,6 +15,7 @@ with
     review_comm as (
         select
             order_id,
+            review_id,
             case
                 when
                     review_comment_title is not null
@@ -27,10 +28,10 @@ with
 select
     {{
         dbt_utils.generate_surrogate_key(
-            ["order_reviews_staging.order_id", "review_id"]
+            ["order_reviews_staging.order_id", "order_reviews_staging.review_id"]
         )
     }} as order_review_key,
-    review_id,
+    order_reviews_staging.review_id,
     order_reviews_staging.order_id,
     review_score,
     review_comment_title,
@@ -75,4 +76,7 @@ select
     record_source
 
 from order_reviews_staging
-left join review_comm on order_reviews_staging.order_id = review_comm.order_id
+left join
+    review_comm
+    on order_reviews_staging.order_id = review_comm.order_id
+    and order_reviews_staging.review_id = review_comm.review_id
