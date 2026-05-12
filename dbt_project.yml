@@ -53,6 +53,10 @@ models:
       #  int_order_header_summary_to_delete:
       #    +enabled: false
 
+    marts:
+      +schema: marts
+      +materialized: table
+
 seeds:
   +schema: seed_data
 

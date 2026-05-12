@@ -1,0 +1,40 @@
+with
+    prods_int as (
+        select
+            product_id,
+            product_category_name,
+            product_category_name_english,
+            category_issue_type,
+            product_name_length,
+            product_description_length,
+            product_photos_qty,
+            product_weight_g,
+            product_length_cm,
+            product_height_cm,
+            product_width_cm,
+            load_ts_utc,
+            record_source,
+            dbt_valid_from,
+            dbt_valid_to,
+            is_current_record
+        from {{ ref("int_products_base") }}
+        where is_current_record = true
+    )
+select
+    product_id,
+    product_category_name,
+    product_category_name_english,
+    category_issue_type,
+    product_name_length,
+    product_description_length,
+    product_photos_qty,
+    product_weight_g,
+    product_length_cm,
+    product_height_cm,
+    product_width_cm,
+    load_ts_utc,
+    record_source,
+    dbt_valid_from,
+    dbt_valid_to,
+    is_current_record
+from prods_int
