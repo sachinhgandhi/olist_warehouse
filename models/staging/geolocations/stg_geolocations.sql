@@ -11,7 +11,7 @@ with
     ),
     renamed as (
         select
-            trim(geolocation_zip_code_prefix) as zip_code_prefix,
+            trim(geolocation_zip_code_prefix)::varchar as zip_code_prefix,
             geolocation_lat::float as lat,
             geolocation_lng::float as lng,
             translate(

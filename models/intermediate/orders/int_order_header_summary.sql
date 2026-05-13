@@ -63,7 +63,7 @@ select
                 order_header_base_int.order_approved_at
             )
         else null
-    end as diff_between_purchase_approved_day,
+    end as diff_between_purchase_approved_days,
 
     order_header_base_int.carrier_handoff_date_key,
     order_header_base_int.order_handed_to_carrier_at,
@@ -79,7 +79,7 @@ select
                 order_header_base_int.order_handed_to_carrier_at
             )
         else null
-    end as diff_between_approved_carrier_del_day,
+    end as diff_between_approved_carrier_del_days,
 
     order_header_base_int.customer_delivery_date_key,
     order_header_base_int.order_delivered_customer_at,
@@ -96,7 +96,7 @@ select
                 order_header_base_int.order_delivered_customer_at
             )
         else null
-    end as diff_between_carrier_customer_del_day,
+    end as diff_between_carrier_customer_del_days,
 
     order_header_base_int.estimated_delivery_date_key,
     order_header_base_int.order_estimated_delivery_at,
@@ -138,7 +138,7 @@ select
                 0
             )
         else null
-    end as late_delivery_day,
+    end as late_delivery_days,
 
     case
         when order_header_base_int.is_delivered
@@ -149,7 +149,7 @@ select
                 order_header_base_int.order_delivered_customer_at
             )
         else null
-    end as total_delivery_day,
+    end as total_delivery_days,
 
     case
         when
@@ -223,9 +223,9 @@ select
     end as payment_mismatch_flag,
 
     order_reviews_base.avg_review_score,
-    order_reviews_base.total_repsonded_review_count,
+    order_reviews_base.total_responded_review_count,
     case
-        when order_reviews_base.total_repsonded_review_count > 1 then true else false
+        when order_reviews_base.total_responded_review_count > 1 then true else false
     end as has_multiple_reviews,
 
     order_reviews_base.latest_review_score,
@@ -240,7 +240,15 @@ select
         else 'NEUTRAL_SCORE'
     end as customer_sentiment,
 
-    order_header_base_int.load_ts_utc,
+    greatest(
+        order_header_base_int.load_ts_utc,
+        coalesce(order_items_base.max_load_ts_utc, order_header_base_int.load_ts_utc),
+        coalesce(
+            order_payments_base.max_load_ts_utc, order_header_base_int.load_ts_utc
+        ),
+        coalesce(order_reviews_base.max_load_ts_utc, order_header_base_int.load_ts_utc)
+    ) as load_ts_utc,
+    {# order_header_base_int.load_ts_utc, #}
     order_header_base_int.record_source
 from order_header_base_int
 left join

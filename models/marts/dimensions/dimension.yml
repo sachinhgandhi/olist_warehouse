@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: dim_geolocations
+    description: >
+      Dimension model containing standardized and deduplicated geographic reference
+      data enriched with Brazilian state and regional information. This dimension
+      is used for customer, seller, delivery, and regional analytics across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per zip code prefix, city, and state combination.
+
+    columns:
+      - name: zip_code_prefix
+        data_type: varchar
+        description: Standardized zip code prefix representing the geographic location.
+
+      - name: state_code
+        data_type: varchar
+        description: Standardized state code associated with the geographic location.
+
+      - name: state_name
+        data_type: varchar
+        description: Official Brazilian state name associated with the state code.
+
+      - name: region_name
+        data_type: varchar
+        description: High-level Brazilian geographic region associated with the state.
+
+      - name: city_name
+        data_type: varchar
+        description: Standardized city name associated with the geographic location.
+
+      - name: record_source
+        data_type: varchar
+        description: Source identifier representing the origin of the geolocation record.
+
+      - name: lat
+        data_type: float
+        description: Latitude coordinate representing the geographic location.
+
+      - name: lng
+        data_type: float
+        description: Longitude coordinate representing the geographic location.
+
+  - name: dim_brazil_states
+    description: >
+      Dimension model containing standardized Brazilian state and regional reference
+      data used for geographic enrichment, customer and seller location analysis,
+      regional performance reporting, and business segmentation across the warehouse.
+    config:
+      contract:
+        enforced: true
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per Brazilian state code.
+
+    columns:
+      - name: state_code
+        data_type: varchar
+        description: Standardized two-character code representing a Brazilian state.
+
+      - name: state_name
+        data_type: varchar
+        description: Official name of the Brazilian state associated with the state code.
+
+      - name: region_name
+        data_type: varchar
+        description: High-level geographic region classification associated with the Brazilian state.
