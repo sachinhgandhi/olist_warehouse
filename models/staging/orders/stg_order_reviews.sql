@@ -13,7 +13,7 @@ with
     ),
     renamed as (
         select
-            trim(review_id) as review_id,  -- TEXT
+            trim(review_id)::varchar as review_id,  -- TEXT
             order_id as order_id,  -- TEXT
             review_score::number as review_score,  -- NUMBER
             review_comment_title as review_comment_title,  -- TEXT

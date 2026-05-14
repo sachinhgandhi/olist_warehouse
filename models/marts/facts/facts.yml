@@ -1,0 +1,470 @@
+version: 2
+
+models:
+  - name: fact_order_items
+    description: >
+      Fact model containing order item level transactional data including product,
+      seller, pricing, freight, and shipping information. This fact table is used
+      for revenue analytics, product performance analysis, seller reporting,
+      fulfillment tracking, and downstream business intelligence reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per order item within an order.
+        materialization: >
+          Incremental merge strategy using order_lineitem_key as the unique key with append_new_columns 
+          schema evolution handling.
+
+    columns:
+      - name: order_lineitem_key
+        data_type: varchar
+        description: Surrogate key uniquely identifying an order line item generated using order and item identifiers.
+
+      - name: order_id
+        data_type: varchar
+        description: Unique identifier representing the customer order associated with the order item.
+
+      - name: order_item_id
+        data_type: number
+        description: Sequential identifier representing the individual item within an order.
+
+      - name: product_id
+        data_type: varchar
+        description: Unique identifier representing the product associated with the order item.
+
+      - name: seller_id
+        data_type: varchar
+        description: Unique identifier representing the seller fulfilling the order item.
+
+      - name: shipping_limit_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating the deadline by which the seller should ship the order item.
+
+      - name: shipping_limit_date_key
+        data_type: number
+        description: Date surrogate key derived from the shipping limit timestamp in YYYYMMDD format.
+
+      - name: product_price
+        data_type: number
+        description: Product price amount charged for the order item excluding freight charges.
+
+      - name: freight_value
+        data_type: number
+        description: Freight or shipping charge associated with the order item.
+
+      - name: total_line_amount
+        data_type: number
+        description: Total monetary amount for the order item including product price and freight charges.
+
+      - name: quantity
+        data_type: number
+        description: Quantity of products associated with the order line item.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the order item record was loaded into the warehouse.
+
+      - name: record_source
+        data_type: varchar
+        description: Source table identifier from which the order item record originated.
+
+  - name: fct_order_payments
+    description: >
+      Fact model containing order payment transactional data enriched with
+      standardized payment type attributes, installment indicators, and payment
+      classifications. This fact table is used for payment analytics, customer
+      payment behavior analysis, installment reporting, revenue reconciliation,
+      and downstream business intelligence reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per payment transaction within an order.
+        materialization: >
+          Incremental merge strategy using order_payment_key as the unique key with append_new_columns schema 
+          evolution handling.
+
+    columns:
+      - name: order_payment_key
+        data_type: varchar
+        description: Surrogate key uniquely identifying an order payment transaction generated using order and payment sequence identifiers.
+
+      - name: order_id
+        data_type: varchar
+        description: Unique identifier representing the customer order associated with the payment transaction.
+
+      - name: payment_sequential
+        data_type: number
+        description: Sequential identifier representing the payment sequence for an order with multiple payments.
+
+      - name: payment_type_code
+        data_type: varchar
+        description: Standardized payment type code associated with the payment transaction.
+
+      - name: payment_type_name
+        data_type: varchar
+        description: Business-friendly display name representing the payment method used for the transaction.
+
+      - name: payment_category
+        data_type: varchar
+        description: High-level business classification grouping similar payment methods together.
+
+      - name: is_installment_supported
+        data_type: boolean
+        description: Indicates whether the payment method supports installment-based transactions.
+
+      - name: payment_installments
+        data_type: number
+        description: Number of installments selected for the payment transaction.
+
+      - name: is_installment_payment
+        data_type: boolean
+        description: Indicates whether the payment transaction was processed using installment payments.
+
+      - name: payment_amount
+        data_type: number
+        description: Monetary amount associated with the payment transaction.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the payment transaction record was loaded into the warehouse.
+
+      - name: record_source
+        data_type: varchar
+        description: Source table identifier from which the payment transaction record originated.
+
+  - name: fct_order_reviews
+    description: >
+      Fact model containing customer review transactional data enriched with
+      sentiment classifications, review response indicators, and lifecycle metrics.
+      This fact table is used for customer satisfaction analysis, seller performance
+      reporting, sentiment analytics, review response tracking, and downstream
+      business intelligence reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per customer review associated with an order.
+        materialization: >
+          Incremental merge strategy using order_review_key as the unique key with append_new_columns schema 
+          evolution handling.
+
+    columns:
+      - name: order_review_key
+        data_type: varchar
+        description: Surrogate key uniquely identifying an order review record generated using order and review identifiers.
+
+      - name: review_id
+        data_type: varchar
+        description: Unique identifier assigned to the customer review record.
+
+      - name: order_id
+        data_type: varchar
+        description: Unique identifier representing the customer order associated with the review.
+
+      - name: review_score
+        data_type: number
+        description: Numeric rating score provided by the customer for the order experience.
+
+      - name: review_comment_title
+        data_type: varchar
+        description: Title or summary provided by the customer for the review.
+
+      - name: review_comment_message
+        data_type: varchar
+        description: Detailed review comment message provided by the customer.
+
+      - name: has_review_answer
+        data_type: boolean
+        description: Indicates whether the review contains a title or detailed review comment message.
+
+      - name: creation_date_key
+        data_type: number
+        description: Date surrogate key derived from the review creation timestamp in YYYYMMDD format.
+
+      - name: review_creation_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the customer created the review.
+
+      - name: has_customer_responded
+        data_type: boolean
+        description: Indicates whether a response or follow-up activity exists for the review.
+
+      - name: answer_date_key
+        data_type: number
+        description: Date surrogate key derived from the review response timestamp in YYYYMMDD format.
+
+      - name: review_answer_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the review response or processing activity was recorded.
+
+      - name: review_response_day
+        data_type: number
+        description: Number of days between review creation and review response timestamps.
+
+      - name: review_sentiment_category
+        data_type: varchar
+        description: Derived sentiment classification of the review based on the review score and review content availability.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the review transaction record was loaded into the warehouse.
+
+      - name: record_source
+        data_type: varchar
+        description: Source table identifier from which the review transaction record originated.
+
+  - name: fct_orders_accum_snap
+    description: >
+      Fact model containing accumulated order lifecycle metrics enriched with
+      fulfillment, delivery, payment, seller, product, reconciliation, and customer
+      sentiment attributes. This accumulated snapshot fact table tracks the complete
+      lifecycle of an order from purchase through delivery and is used for operational
+      reporting, SLA monitoring, fulfillment analytics, revenue reporting, and
+      downstream business intelligence analysis across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per customer order representing the latest accumulated lifecycle state of the order.
+        materialization: >
+          Incremental merge strategy using order_id as the unique key with append_new_columns schema evolution 
+          handling.
+
+    columns:
+      - name: order_key
+        data_type: varchar
+        description: Surrogate key uniquely identifying a customer order generated using order and customer identifiers.
+
+      - name: order_id
+        data_type: varchar
+        description: Unique identifier representing the customer order.
+
+      - name: customer_id
+        data_type: varchar
+        description: Unique identifier representing the customer associated with the order.
+
+      - name: order_status_code
+        data_type: varchar
+        description: Standardized order status code associated with the order lifecycle stage.
+
+      - name: order_status_name
+        data_type: varchar
+        description: Business-friendly display name representing the order lifecycle status.
+
+      - name: order_status_category
+        data_type: varchar
+        description: High-level business classification grouping similar order statuses together.
+
+      - name: purchase_date_key
+        data_type: number
+        description: Date surrogate key derived from the order purchase timestamp in YYYYMMDD format.
+
+      - name: order_purchase_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the customer placed the order.
+
+      - name: is_purchased
+        data_type: boolean
+        description: Indicates whether the order has been successfully placed by the customer.
+
+      - name: approved_date_key
+        data_type: number
+        description: Date surrogate key derived from the order approval timestamp in YYYYMMDD format.
+
+      - name: order_approved_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the order payment was approved.
+
+      - name: is_approved
+        data_type: boolean
+        description: Indicates whether the order payment has been approved.
+
+      - name: diff_between_purchase_approved_days
+        data_type: number
+        description: Number of days between order purchase and payment approval.
+
+      - name: carrier_handoff_date_key
+        data_type: number
+        description: Date surrogate key derived from the carrier handoff timestamp in YYYYMMDD format.
+
+      - name: order_handed_to_carrier_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the order was handed over to the delivery carrier.
+
+      - name: is_handed_to_carrier
+        data_type: boolean
+        description: Indicates whether the order has been handed over to the carrier for delivery.
+
+      - name: diff_between_approved_carrier_del_days
+        data_type: number
+        description: Number of days between payment approval and carrier handoff.
+
+      - name: customer_delivery_date_key
+        data_type: number
+        description: Date surrogate key derived from the customer delivery timestamp in YYYYMMDD format.
+
+      - name: order_delivered_customer_at
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the order was delivered to the customer.
+
+      - name: is_delivered
+        data_type: boolean
+        description: Indicates whether the order has been successfully delivered to the customer.
+
+      - name: diff_between_carrier_customer_del_days
+        data_type: number
+        description: Number of days between carrier handoff and customer delivery.
+
+      - name: estimated_delivery_date_key
+        data_type: number
+        description: Date surrogate key derived from the estimated delivery timestamp in YYYYMMDD format.
+
+      - name: order_estimated_delivery_at
+        data_type: timestamp_ntz
+        description: Estimated delivery timestamp promised to the customer.
+
+      - name: is_cancelled
+        data_type: boolean
+        description: Indicates whether the order was cancelled.
+
+      - name: is_unavailable
+        data_type: boolean
+        description: Indicates whether the order became unavailable due to fulfillment or stock issues.
+
+      - name: is_open_order
+        data_type: boolean
+        description: Indicates whether the order is currently active and not yet completed, cancelled, or unavailable.
+
+      - name: is_delivered_on_time
+        data_type: boolean
+        description: Indicates whether the order was delivered on or before the estimated delivery date.
+
+      - name: late_delivery_days
+        data_type: number
+        description: Number of delayed delivery days beyond the estimated delivery date.
+
+      - name: total_delivery_days
+        data_type: number
+        description: Total number of days taken from order purchase to customer delivery.
+
+      - name: is_open_past_estimated_delivery
+        data_type: boolean
+        description: Indicates whether an open order has exceeded the estimated delivery date.
+
+      - name: distinct_seller_count
+        data_type: number
+        description: Count of unique sellers associated with the order.
+
+      - name: has_multiple_sellers
+        data_type: boolean
+        description: Indicates whether the order contains products fulfilled by multiple sellers.
+
+      - name: is_seller_handoff_on_time
+        data_type: boolean
+        description: Indicates whether the seller handed over the shipment to the carrier within the shipping deadline.
+
+      - name: total_product_count
+        data_type: number
+        description: Total number of product records associated with the order including duplicate products.
+
+      - name: distinct_product_count
+        data_type: number
+        description: Count of unique products associated with the order.
+
+      - name: has_multiple_products
+        data_type: boolean
+        description: Indicates whether the order contains multiple distinct products.
+
+      - name: distinct_product_category_count
+        data_type: number
+        description: Count of unique product categories associated with the order.
+
+      - name: has_multiple_categories
+        data_type: boolean
+        description: Indicates whether the order contains products from multiple categories.
+
+      - name: total_product_quantity
+        data_type: number
+        description: Total quantity of products included in the order.
+
+      - name: total_product_amount
+        data_type: number
+        description: Total monetary amount of products excluding freight charges for the order.
+
+      - name: total_freight_amount
+        data_type: number
+        description: Total freight or shipping charges associated with the order.
+
+      - name: total_order_amount
+        data_type: number
+        description: Total monetary value of the order including product and freight charges.
+
+      - name: payment_record_count
+        data_type: number
+        description: Total number of payment transaction records associated with the order.
+
+      - name: average_installments
+        data_type: number
+        description: Average number of payment installments associated with the order transactions.
+
+      - name: max_installments
+        data_type: number
+        description: Maximum number of payment installments used among the order transactions.
+
+      - name: total_payment_received
+        data_type: number
+        description: Total monetary payment amount received for the order across all payment transactions.
+
+      - name: payment_reconciliation_diff
+        data_type: number
+        description: Difference between total order amount and total payment received for reconciliation analysis.
+
+      - name: payment_mismatch_flag
+        data_type: boolean
+        description: Indicates whether a reconciliation mismatch exists between order amount and received payments.
+
+      - name: avg_review_score
+        data_type: number
+        description: Average customer review score calculated across all reviews associated with the order.
+
+      - name: total_responded_review_count
+        data_type: number
+        description: Total number of review records associated with the order containing customer review responses or comments.
+
+      - name: has_multiple_reviews
+        data_type: boolean
+        description: Indicates whether the order contains multiple review records.
+
+      - name: latest_review_score
+        data_type: number
+        description: Most recent customer review score associated with the order.
+
+      - name: customer_sentiment
+        data_type: varchar
+        description: Derived customer sentiment classification based on the average review score.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the order lifecycle record was loaded into the warehouse.
+
+      - name: record_source
+        data_type: varchar
+        description: Source table identifier from which the order lifecycle record originated.

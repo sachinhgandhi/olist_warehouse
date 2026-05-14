@@ -1,0 +1,721 @@
+version: 2
+
+models:
+  - name: dim_geolocations
+    description: >
+      Dimension model containing standardized and deduplicated geographic reference
+      data enriched with Brazilian state and regional information. This dimension
+      is used for customer, seller, delivery, and regional analytics across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per zip code prefix, city, and state combination.
+
+    columns:
+      - name: zip_code_prefix
+        data_type: varchar
+        description: Standardized zip code prefix representing the geographic location.
+
+      - name: state_code
+        data_type: varchar
+        description: Standardized state code associated with the geographic location.
+
+      - name: state_name
+        data_type: varchar
+        description: Official Brazilian state name associated with the state code.
+
+      - name: region_name
+        data_type: varchar
+        description: High-level Brazilian geographic region associated with the state.
+
+      - name: city_name
+        data_type: varchar
+        description: Standardized city name associated with the geographic location.
+
+      - name: record_source
+        data_type: varchar
+        description: Source identifier representing the origin of the geolocation record.
+
+      - name: lat
+        data_type: float
+        description: Latitude coordinate representing the geographic location.
+
+      - name: lng
+        data_type: float
+        description: Longitude coordinate representing the geographic location.
+
+  - name: dim_brazil_states
+    description: >
+      Dimension model containing standardized Brazilian state and regional reference
+      data used for geographic enrichment, customer and seller location analysis,
+      regional performance reporting, and business segmentation across the warehouse.
+    config:
+      contract:
+        enforced: true
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per Brazilian state code.
+
+    columns:
+      - name: state_code
+        data_type: varchar
+        description: Standardized two-character code representing a Brazilian state.
+
+      - name: state_name
+        data_type: varchar
+        description: Official name of the Brazilian state associated with the state code.
+
+      - name: region_name
+        data_type: varchar
+        description: High-level geographic region classification associated with the Brazilian state.
+
+  - name: dim_dates
+    description: >
+      Dimension model containing calendar and date-related attributes used for
+      time-series analysis, trend reporting, period comparisons, operational reporting,
+      and business intelligence across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per calendar date.
+
+    columns:
+      - name: date_key
+        data_type: number
+        description: Surrogate date key generated in YYYYMMDD format.
+
+      - name: full_date
+        data_type: date
+        description: Calendar date representing the full date value.
+
+      - name: day_of_month
+        data_type: number
+        description: Numeric day value within the month.
+
+      - name: month_num
+        data_type: number
+        description: Numeric month value within the calendar year.
+
+      - name: year_num
+        data_type: number
+        description: Four-digit calendar year value.
+
+      - name: day_of_week
+        data_type: number
+        description: Numeric representation of the day within the week.
+
+      - name: day_name
+        data_type: varchar
+        description: Business-friendly name representing the day of the week.
+
+      - name: week_number
+        data_type: number
+        description: Calendar week number within the year.
+
+      - name: is_week_start
+        data_type: boolean
+        description: Indicates whether the date represents the first day of the week.
+
+      - name: is_week_end
+        data_type: boolean
+        description: Indicates whether the date represents the last day of the week.
+
+      - name: is_weekend
+        data_type: boolean
+        description: Indicates whether the date falls on a weekend.
+
+      - name: is_current_date
+        data_type: boolean
+        description: Indicates whether the date matches the current system date.
+
+      - name: month_end_date
+        data_type: date
+        description: Calendar date representing the last day of the month.
+
+      - name: year_end_date
+        data_type: date
+        description: Calendar date representing the last day of the year.
+
+      - name: is_month_start
+        data_type: boolean
+        description: Indicates whether the date represents the first day of the month.
+
+      - name: is_month_end
+        data_type: boolean
+        description: Indicates whether the date represents the last day of the month.
+
+      - name: quarter_number
+        data_type: number
+        description: Numeric quarter value within the calendar year.
+
+      - name: is_quarter_start
+        data_type: boolean
+        description: Indicates whether the date represents the first day of the quarter.
+
+      - name: is_quarter_end
+        data_type: boolean
+        description: Indicates whether the date represents the last day of the quarter.
+
+  - name: dim_order_status
+    description: >
+      Dimension model containing standardized order status reference data enriched
+      with business classifications, lifecycle indicators, revenue eligibility flags,
+      and reporting attributes used for consistent order, fulfillment, and revenue
+      analytics across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per order status code.
+
+    columns:
+      - name: order_status_code
+        data_type: varchar
+        description: Standardized order status code used as the business key for order status mapping.
+
+      - name: order_status_name
+        data_type: varchar
+        description: Business-friendly display name representing the order lifecycle status.
+
+      - name: order_status_category
+        data_type: varchar
+        description: High-level business classification grouping similar order statuses together.
+
+      - name: is_active_order
+        data_type: boolean
+        description: Indicates whether the order is currently considered active or in-progress.
+
+      - name: is_completed_order
+        data_type: boolean
+        description: Indicates whether the order lifecycle has been successfully completed.
+
+      - name: is_cancelled_order
+        data_type: boolean
+        description: Indicates whether the order was cancelled and should be treated as a cancelled transaction.
+
+      - name: is_unavailable_order
+        data_type: boolean
+        description: Indicates whether the order became unavailable due to fulfillment or stock issues.
+
+      - name: is_booked_revenue_eligible
+        data_type: boolean
+        description: Indicates whether the order status should contribute toward booked revenue metrics.
+
+      - name: is_delivered_revenue_eligible
+        data_type: boolean
+        description: Indicates whether the order status should contribute toward delivered or realized revenue metrics.
+
+      - name: display_sequence
+        data_type: number
+        description: Numeric sequence used to control the business-defined display order of statuses in reports and dashboards.
+
+      - name: status_description
+        data_type: varchar
+        description: Detailed business description explaining the meaning and lifecycle stage of the order status.
+
+  - name: payment_types
+    description: >
+      Dimension model containing standardized payment type reference data enriched
+      with payment category classifications, installment support indicators,
+      and business descriptions used for payment analytics, customer payment behavior
+      analysis, and revenue reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per payment type code.
+
+    columns:
+      - name: payment_type_code
+        data_type: varchar
+        description: Standardized payment type code used as the business key for payment method mapping.
+
+      - name: payment_type_name
+        data_type: varchar
+        description: Business-friendly display name representing the payment method.
+
+      - name: payment_category
+        data_type: varchar
+        description: High-level business classification grouping similar payment methods together.
+
+      - name: is_installment_supported
+        data_type: boolean
+        description: Indicates whether the payment method supports installment-based transactions.
+
+      - name: payment_description
+        data_type: varchar
+        description: Detailed business description explaining the payment method and its usage characteristics.
+
+  - name: dim_product_categories
+    description: >
+      Dimension model containing standardized product category reference data
+      enriched with English category mappings and data quality reconciliation attributes.
+      This dimension is used for product analytics, category reporting, merchandising analysis,
+      and business intelligence reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per product category name.
+
+    columns:
+      - name: product_category_name
+        data_type: varchar
+        description: Original product category name received from the source dataset.
+
+      - name: product_category_name_english
+        data_type: varchar
+        description: Standardized English product category name used for reporting and analytics.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the product category record was loaded into the staging layer.
+
+      - name: record_source
+        data_type: varchar
+        description: Source identifier representing the origin of the product category record or reconciliation process.
+
+      - name: category_issue_type
+        data_type: varchar
+        description: Classification indicating whether the category is valid, unmapped, or missing for data quality and reconciliation tracking.
+
+  - name: dim_customers_current
+    description: >
+      Dimension model containing the current active version of customer master data
+      enriched with geographic attributes and snapshot validity information.
+      This dimension is used for customer analytics, geographic reporting,
+      segmentation, and downstream business intelligence reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per current active customer identifier.
+
+    columns:
+      - name: customer_id
+        data_type: varchar
+        description: Unique customer identifier associated with an individual order transaction.
+
+      - name: customer_unique_id
+        data_type: varchar
+        description: Logical unique customer identifier used to identify repeat customers across multiple orders.
+
+      - name: zip_code_prefix
+        data_type: varchar
+        description: Zip code prefix associated with the customer's location.
+
+      - name: city_name
+        data_type: varchar
+        description: Standardized customer city name associated with the customer record.
+
+      - name: state_code
+        data_type: varchar
+        description: Standardized state code associated with the customer's location.
+
+      - name: state_name
+        data_type: varchar
+        description: Official Brazilian state name associated with the customer location.
+
+      - name: region_name
+        data_type: varchar
+        description: High-level Brazilian geographic region associated with the customer location.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the customer record was loaded into the staging layer.
+
+      - name: record_source
+        data_type: varchar
+        description: Source table identifier from which the customer record originated.
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the current customer record version became valid.
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the customer record version expired or became inactive.
+
+      - name: is_current_record
+        data_type: boolean
+        description: Indicates whether the customer record represents the current active version in snapshot history.
+
+  - name: dim_customers_history
+    description: >
+      Dimension model containing historical customer master data enriched with
+      geographic attributes and snapshot validity information using Slowly Changing
+      Dimension Type 2 methodology. This dimension preserves customer attribute history
+      for historical reporting, customer analytics, segmentation, and point-in-time
+      analysis across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per customer identifier and snapshot validity period.
+
+    columns:
+      - name: customer_id
+        data_type: varchar
+        description: Unique customer identifier associated with an individual order transaction.
+
+      - name: customer_unique_id
+        data_type: varchar
+        description: Logical unique customer identifier used to identify repeat customers across multiple orders.
+
+      - name: zip_code_prefix
+        data_type: varchar
+        description: Zip code prefix associated with the customer's location.
+
+      - name: city_name
+        data_type: varchar
+        description: Standardized customer city name associated with the customer record.
+
+      - name: state_code
+        data_type: varchar
+        description: Standardized state code associated with the customer's location.
+
+      - name: state_name
+        data_type: varchar
+        description: Official Brazilian state name associated with the customer location.
+
+      - name: region_name
+        data_type: varchar
+        description: High-level Brazilian geographic region associated with the customer location.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the customer record was loaded into the staging layer.
+
+      - name: record_source
+        data_type: varchar
+        description: Source table identifier from which the customer record originated.
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the customer record became valid.
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the customer record expired or became inactive.
+
+      - name: is_current_record
+        data_type: boolean
+        description: Indicates whether the customer record represents the current active version in snapshot history.
+
+  - name: dim_sellers_current
+    description: >
+      Dimension model containing the current active version of seller master data
+      enriched with geographic attributes and snapshot validity information.
+      This dimension is used for seller analytics, fulfillment reporting,
+      geographic analysis, and downstream business intelligence reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per current active seller identifier.
+
+    columns:
+      - name: seller_id
+        data_type: varchar
+        description: Unique identifier assigned to each seller in the marketplace.
+
+      - name: zip_code_prefix
+        data_type: varchar
+        description: Zip code prefix associated with the seller's location.
+
+      - name: city_name
+        data_type: varchar
+        description: Standardized seller city name associated with the seller record.
+
+      - name: state_code
+        data_type: varchar
+        description: Standardized state code associated with the seller's location.
+
+      - name: state_name
+        data_type: varchar
+        description: Official Brazilian state name associated with the seller location.
+
+      - name: region_name
+        data_type: varchar
+        description: High-level Brazilian geographic region associated with the seller location.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the seller record was loaded into the staging layer.
+
+      - name: record_source
+        data_type: varchar
+        description: Source table identifier from which the seller record originated.
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the current seller record version became valid.
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the seller record version expired or became inactive.
+
+      - name: is_current_record
+        data_type: boolean
+        description: Indicates whether the seller record represents the current active version in snapshot history.
+
+  - name: dim_sellers_history
+    description: >
+      Dimension model containing historical seller master data enriched with
+      geographic attributes and snapshot validity information using Slowly Changing
+      Dimension Type 2 methodology. This dimension preserves seller attribute history
+      for historical reporting, seller analytics, fulfillment analysis, and point-in-time
+      business reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per seller identifier and snapshot validity period.
+
+    columns:
+      - name: seller_id
+        data_type: varchar
+        description: Unique identifier assigned to each seller in the marketplace.
+
+      - name: zip_code_prefix
+        data_type: varchar
+        description: Zip code prefix associated with the seller's location.
+
+      - name: city_name
+        data_type: varchar
+        description: Standardized seller city name associated with the seller record.
+
+      - name: state_code
+        data_type: varchar
+        description: Standardized state code associated with the seller's location.
+
+      - name: state_name
+        data_type: varchar
+        description: Official Brazilian state name associated with the seller location.
+
+      - name: region_name
+        data_type: varchar
+        description: High-level Brazilian geographic region associated with the seller location.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the seller record was loaded into the staging layer.
+
+      - name: record_source
+        data_type: varchar
+        description: Source table identifier from which the seller record originated.
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the seller record became valid.
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the seller record expired or became inactive.
+
+      - name: is_current_record
+        data_type: boolean
+        description: Indicates whether the seller record represents the current active version in snapshot history.
+
+  - name: dim_products_current
+    description: >
+      Dimension model containing the current active version of product master data
+      enriched with standardized product category mappings, product attributes,
+      and snapshot validity information. This dimension is used for product analytics,
+      merchandising analysis, category reporting, fulfillment analysis, and downstream
+      business intelligence reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per current active product identifier.
+
+    columns:
+      - name: product_id
+        data_type: varchar
+        description: Unique identifier assigned to each product in the marketplace.
+
+      - name: product_category_name
+        data_type: varchar
+        description: Original product category name associated with the product record.
+
+      - name: product_category_name_english
+        data_type: varchar
+        description: Standardized English product category name used for reporting and analytics.
+
+      - name: category_issue_type
+        data_type: varchar
+        description: Classification indicating whether the product category is valid, unmapped, or missing for data quality tracking.
+
+      - name: product_name_length
+        data_type: number
+        description: Length of the product name text measured in characters.
+
+      - name: product_description_length
+        data_type: number
+        description: Length of the product description text measured in characters.
+
+      - name: product_photos_qty
+        data_type: number
+        description: Number of product images available for the product listing.
+
+      - name: product_weight_g
+        data_type: number
+        description: Product weight measured in grams.
+
+      - name: product_length_cm
+        data_type: number
+        description: Product length measured in centimeters.
+
+      - name: product_height_cm
+        data_type: number
+        description: Product height measured in centimeters.
+
+      - name: product_width_cm
+        data_type: number
+        description: Product width measured in centimeters.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the product record was loaded into the staging layer.
+
+      - name: record_source
+        data_type: varchar
+        description: Source table identifier from which the product record originated.
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the current product record version became valid.
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the product record version expired or became inactive.
+
+      - name: is_current_record
+        data_type: boolean
+        description: Indicates whether the product record represents the current active version in snapshot history.
+
+  - name: dim_products_history
+    description: >
+      Dimension model containing historical product master data enriched with
+      standardized product category mappings, product attributes, and snapshot
+      validity information using Slowly Changing Dimension Type 2 methodology.
+      This dimension preserves product attribute history for historical reporting,
+      merchandising analysis, category reporting, fulfillment analysis, and
+      point-in-time business reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per product identifier and snapshot validity period.
+
+    columns:
+      - name: product_id
+        data_type: varchar
+        description: Unique identifier assigned to each product in the marketplace.
+
+      - name: product_category_name
+        data_type: varchar
+        description: Original product category name associated with the product record.
+
+      - name: product_category_name_english
+        data_type: varchar
+        description: Standardized English product category name used for reporting and analytics.
+
+      - name: category_issue_type
+        data_type: varchar
+        description: Classification indicating whether the product category is valid, unmapped, or missing for data quality tracking.
+
+      - name: product_name_length
+        data_type: number
+        description: Length of the product name text measured in characters.
+
+      - name: product_description_length
+        data_type: number
+        description: Length of the product description text measured in characters.
+
+      - name: product_photos_qty
+        data_type: number
+        description: Number of product images available for the product listing.
+
+      - name: product_weight_g
+        data_type: number
+        description: Product weight measured in grams.
+
+      - name: product_length_cm
+        data_type: number
+        description: Product length measured in centimeters.
+
+      - name: product_height_cm
+        data_type: number
+        description: Product height measured in centimeters.
+
+      - name: product_width_cm
+        data_type: number
+        description: Product width measured in centimeters.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the product record was loaded into the staging layer.
+
+      - name: record_source
+        data_type: varchar
+        description: Source table identifier from which the product record originated.
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the product record became valid.
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: Timestamp indicating when the historical version of the product record expired or became inactive.
+
+      - name: is_current_record
+        data_type: boolean
+        description: Indicates whether the product record represents the current active version in snapshot history.

@@ -28,10 +28,10 @@ with
         inner join
             {{ ref("int_order_header_base") }} order_base
             on order_base.order_id = oib.order_id
-        where
-            order_base.order_purchase_at >= prd.dbt_valid_from
+        where prd.is_current_record = true
+        {# order_base.order_purchase_at >= prd.dbt_valid_from
             and order_base.order_purchase_at
-            < coalesce(prd.dbt_valid_to, '9999-12-31'::timestamp_ntz)
+            < coalesce(prd.dbt_valid_to, '9999-12-31'::timestamp_ntz) #}
         group by oib.order_id
     )
 select

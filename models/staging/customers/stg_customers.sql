@@ -13,7 +13,7 @@ with
         select
             customer_id as customer_id,  -- TEXT
             customer_unique_id as customer_unique_id,  -- TEXT
-            trim(customer_zip_code) as zip_code_prefix,  -- TEXT
+            trim(customer_zip_code)::varchar as zip_code_prefix,  -- TEXT
             translate(
                 lower(trim(customer_city)),
                 'áàãâäéèêëíìîïóòõôöúùûüç',

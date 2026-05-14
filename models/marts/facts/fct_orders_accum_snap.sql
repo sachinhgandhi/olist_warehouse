@@ -92,7 +92,7 @@ with
 
         {% if is_incremental() %}
             where
-                load_ts_utc >= (
+                load_ts_utc > (
                     select coalesce(max(load_ts_utc), '1900-01-01'::timestamp_ntz)
                     from {{ this }}
                 )

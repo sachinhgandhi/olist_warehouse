@@ -621,7 +621,7 @@ models:
             is_business_key: true
 
       - name: review_id
-        data_type: number
+        data_type: varchar
         description: Unique identifier assigned to the customer review record.
 
       - name: order_id

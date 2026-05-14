@@ -6,7 +6,7 @@ with
     renamed as (
         select
             seller_id as seller_id,  -- TEXT 
-            trim(seller_zip_code_prefix) as zip_code_prefix,  -- TEXT
+            trim(seller_zip_code_prefix)::varchar as zip_code_prefix,  -- TEXT
             translate(
                 lower(trim(seller_city)),
                 'áàãâäéèêëíìîïóòõôöúùûüç',
