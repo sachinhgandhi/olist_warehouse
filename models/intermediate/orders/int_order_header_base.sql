@@ -74,6 +74,12 @@ select
         else true
     end as is_open_order,
 
+    case
+        when not ord_st.is_cancelled_order and ord_st.is_unavailable_order
+        then true
+        else false
+    end as is_valid_order,
+
     order_header_staging.load_ts_utc,
     order_header_staging.record_source
 from order_header_staging

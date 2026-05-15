@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: fact_order_items
+  - name: fct_order_items
     description: >
       Fact model containing order item level transactional data including product,
       seller, pricing, freight, and shipping information. This fact table is used
@@ -48,6 +48,13 @@ models:
       - name: shipping_limit_date_key
         data_type: number
         description: Date surrogate key derived from the shipping limit timestamp in YYYYMMDD format.
+        tests:
+          - relationships:
+              arguments:
+                to: ref("dim_dates")
+                field: date_key
+              config:
+                alias: fct_order_items__shipping_limit_date_key__relationships__error
 
       - name: product_price
         data_type: number
@@ -194,6 +201,13 @@ models:
       - name: creation_date_key
         data_type: number
         description: Date surrogate key derived from the review creation timestamp in YYYYMMDD format.
+        tests:
+          - relationships:
+              arguments:
+                to: ref("dim_dates")
+                field: date_key
+              config:
+                alias: fct_order_reviews__creation_date_key__relationships__error
 
       - name: review_creation_at
         data_type: timestamp_ntz
@@ -206,6 +220,13 @@ models:
       - name: answer_date_key
         data_type: number
         description: Date surrogate key derived from the review response timestamp in YYYYMMDD format.
+        tests:
+          - relationships:
+              arguments:
+                to: ref("dim_dates")
+                field: date_key
+              config:
+                alias: fct_order_reviews__answer_date_key__relationships__error
 
       - name: review_answer_at
         data_type: timestamp_ntz
@@ -276,6 +297,13 @@ models:
       - name: purchase_date_key
         data_type: number
         description: Date surrogate key derived from the order purchase timestamp in YYYYMMDD format.
+        tests:
+          - relationships:
+              arguments:
+                to: ref("dim_dates")
+                field: date_key
+              config:
+                alias: fct_orders_accum_snap__purchase_date_key__relationships__error
 
       - name: order_purchase_at
         data_type: timestamp_ntz
@@ -288,6 +316,13 @@ models:
       - name: approved_date_key
         data_type: number
         description: Date surrogate key derived from the order approval timestamp in YYYYMMDD format.
+        tests:
+          - relationships:
+              arguments:
+                to: ref("dim_dates")
+                field: date_key
+              config:
+                alias: fct_orders_accum_snap__approved_date_key__relationships__error
 
       - name: order_approved_at
         data_type: timestamp_ntz
@@ -304,6 +339,13 @@ models:
       - name: carrier_handoff_date_key
         data_type: number
         description: Date surrogate key derived from the carrier handoff timestamp in YYYYMMDD format.
+        tests:
+          - relationships:
+              arguments:
+                to: ref("dim_dates")
+                field: date_key
+              config:
+                alias: fct_orders_accum_snap__carrier_handoff_date_key__relationships__error
 
       - name: order_handed_to_carrier_at
         data_type: timestamp_ntz
@@ -320,6 +362,13 @@ models:
       - name: customer_delivery_date_key
         data_type: number
         description: Date surrogate key derived from the customer delivery timestamp in YYYYMMDD format.
+        tests:
+          - relationships:
+              arguments:
+                to: ref("dim_dates")
+                field: date_key
+              config:
+                alias: fct_orders_accum_snap__customer_delivery_date_key__relationships__error
 
       - name: order_delivered_customer_at
         data_type: timestamp_ntz
@@ -336,6 +385,13 @@ models:
       - name: estimated_delivery_date_key
         data_type: number
         description: Date surrogate key derived from the estimated delivery timestamp in YYYYMMDD format.
+        tests:
+          - relationships:
+              arguments:
+                to: ref("dim_dates")
+                field: date_key
+              config:
+                alias: fct_orders_accum_snap__estimated_delivery_date_key__relationships__error
 
       - name: order_estimated_delivery_at
         data_type: timestamp_ntz
@@ -352,6 +408,10 @@ models:
       - name: is_open_order
         data_type: boolean
         description: Indicates whether the order is currently active and not yet completed, cancelled, or unavailable.
+
+      - name: is_valid_order
+        data_type: boolean
+        description: Indicates whether the order is cancelled and unavailable. Hence it is an active order
 
       - name: is_delivered_on_time
         data_type: boolean

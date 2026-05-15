@@ -93,10 +93,26 @@ models:
       - name: date_key
         data_type: number
         description: Surrogate date key generated in YYYYMMDD format.
+        tests:
+          - not_null:
+              config:
+                alias: dim_dates__date_key__not_null__error
+
+          - unique:
+              config:
+                alias: dim_dates__date_key__unique__error
 
       - name: full_date
         data_type: date
         description: Calendar date representing the full date value.
+        tests:
+          - not_null:
+              config:
+                alias: dim_dates__full_date__not_null__error
+
+          - unique:
+              config:
+                alias: dim_dates__full_date__unique__error
 
       - name: day_of_month
         data_type: number
@@ -227,7 +243,7 @@ models:
         data_type: varchar
         description: Detailed business description explaining the meaning and lifecycle stage of the order status.
 
-  - name: payment_types
+  - name: dim_payment_types
     description: >
       Dimension model containing standardized payment type reference data enriched
       with payment category classifications, installment support indicators,

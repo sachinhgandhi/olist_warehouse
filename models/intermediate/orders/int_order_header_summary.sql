@@ -33,6 +33,7 @@ with
             is_cancelled,
             is_unavailable,
             is_open_order,
+            is_valid_order,
 
             load_ts_utc,
             record_source
@@ -104,6 +105,7 @@ select
     order_header_base_int.is_cancelled,
     order_header_base_int.is_unavailable,
     order_header_base_int.is_open_order,
+    order_header_base_int.is_valid_order,
 
     case
         when

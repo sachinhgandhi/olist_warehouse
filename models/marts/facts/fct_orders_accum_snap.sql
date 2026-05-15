@@ -44,6 +44,7 @@ with
             is_cancelled,
             is_unavailable,
             is_open_order,
+            is_valid_order,
 
             is_delivered_on_time,
             late_delivery_days,
@@ -132,6 +133,7 @@ select
     is_cancelled,
     is_unavailable,
     is_open_order,
+    is_valid_order,
 
     is_delivered_on_time,
     late_delivery_days,

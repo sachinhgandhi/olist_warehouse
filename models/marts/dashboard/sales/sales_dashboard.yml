@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: agg_sales_overview_monthly
+    description: >
+      Aggregated monthly sales overview model containing consolidated revenue,
+      order, freight, product quantity, pricing, and growth KPIs. This model
+      is designed for sales performance dashboards, revenue trend analysis,
+      operational monitoring, and executive business reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per calendar month based on order purchase date.
+        materialization: Table materialization refreshed during scheduled warehouse transformation runs.
+
+    columns:
+      - name: month_start_date
+        data_type: date
+        description: First calendar date of the reporting month derived from the order purchase date.
+
+      - name: year_month
+        data_type: varchar
+        description: Reporting month represented in YYYY-MM format.
+
+      - name: year_number
+        data_type: number
+        description: Calendar year derived from the order purchase date.
+
+      - name: month_number
+        data_type: number
+        description: Calendar month number derived from the order purchase date.
+
+      - name: valid_order_count
+        data_type: number
+        description: Total count of distinct valid customer orders during the reporting month.
+
+      - name: booked_revenue
+        data_type: number
+        description: Total booked revenue generated from valid customer orders during the reporting month.
+
+      - name: delivered_order_count
+        data_type: number
+        description: Total count of successfully delivered customer orders during the reporting month.
+
+      - name: delivered_revenue
+        data_type: number
+        description: Total delivered revenue associated with successfully delivered customer orders during the reporting month.
+
+      - name: product_revenue
+        data_type: number
+        description: Total product revenue excluding freight charges during the reporting month.
+
+      - name: freight_revenue
+        data_type: number
+        description: Total freight or shipping revenue during the reporting month.
+
+      - name: freight_pct
+        data_type: number
+        description: Percentage contribution of freight revenue compared to total booked revenue during the reporting month.
+
+      - name: total_product_quantity
+        data_type: number
+        description: Total quantity of products sold during the reporting month.
+
+      - name: average_item_value
+        data_type: number
+        description: Average product item value calculated using total product revenue divided by total product quantity.
+
+      - name: average_order_value
+        data_type: number
+        description: Average monetary value of valid customer orders during the reporting month.
+
+      - name: previous_month_booked_revenue
+        data_type: number
+        description: Booked revenue value from the previous reporting month used for month-over-month trend analysis.
+
+      - name: booked_revenue_growth_pct
+        data_type: number
+        description: Month-over-month percentage growth in booked revenue compared to the previous reporting month.

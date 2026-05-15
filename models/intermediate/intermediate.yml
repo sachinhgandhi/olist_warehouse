@@ -817,6 +817,10 @@ models:
         data_type: boolean
         description: Indicates whether the order is currently active and not yet completed, cancelled, or unavailable.
 
+      - name: is_valid_order
+        data_type: boolean
+        description: Indicates whether the order is cancelled and unavailable. Hence it is an active order
+
       - name: load_ts_utc
         data_type: timestamp_ntz
         description: UTC timestamp indicating when the order record was loaded into the staging layer.
@@ -936,6 +940,10 @@ models:
       - name: is_open_order
         data_type: boolean
         description: Indicates whether the order is currently active and not yet completed, cancelled, or unavailable.
+
+      - name: is_valid_order
+        data_type: boolean
+        description: Indicates whether the order is cancelled and unavailable. Hence it is an active order
 
       - name: is_delivered_on_time
         data_type: boolean

@@ -1,0 +1,108 @@
+version: 2
+
+models:
+  - name: agg_executive_overview_monthly
+    description: >
+      Aggregated monthly executive overview model containing consolidated order,
+      revenue, delivery, customer, payment, and customer satisfaction KPIs.
+      This model is designed for executive dashboards, business performance monitoring,
+      trend analysis, and high-level operational reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per calendar month based on order purchase date.
+        materialization: Table materialization refreshed during scheduled warehouse transformation runs.
+
+    columns:
+      - name: month_start_date
+        data_type: date
+        description: First calendar date of the reporting month derived from the order purchase date.
+
+      - name: year_month
+        data_type: varchar
+        description: Reporting month represented in YYYY-MM format.
+
+      - name: year_number
+        data_type: number
+        description: Calendar year derived from the order purchase date.
+
+      - name: month_number
+        data_type: number
+        description: Calendar month number derived from the order purchase date.
+
+      - name: gross_order_count
+        data_type: number
+        description: Total count of distinct customer orders placed during the reporting month including all order statuses.
+
+      - name: gross_revenue
+        data_type: number
+        description: Total gross revenue generated from all customer orders during the reporting month including cancelled and unavailable orders.
+
+      - name: valid_order_count
+        data_type: number
+        description: Total count of distinct valid customer orders eligible for business reporting during the reporting month.
+
+      - name: booked_revenue
+        data_type: number
+        description: Total booked revenue generated from valid customer orders during the reporting month.
+
+      - name: delivered_order_count
+        data_type: number
+        description: Total count of successfully delivered customer orders during the reporting month.
+
+      - name: delivered_revenue
+        data_type: number(18,2)
+        description: Total delivered revenue associated with successfully delivered customer orders during the reporting month.
+
+      - name: cancelled_order_count
+        data_type: number
+        description: Total count of cancelled customer orders during the reporting month.
+
+      - name: unavailable_order_count
+        data_type: number
+        description: Total count of unavailable customer orders during the reporting month.
+
+      - name: open_order_count
+        data_type: number
+        description: Total count of currently open customer orders during the reporting month.
+
+      - name: unique_customer_count
+        data_type: number
+        description: Total count of distinct customers placing valid orders during the reporting month.
+
+      - name: average_order_value
+        data_type: number(18,2)
+        description: Average monetary value of valid customer orders during the reporting month.
+
+      - name: average_delivery_days
+        data_type: number
+        description: Average number of delivery days for successfully delivered customer orders during the reporting month.
+
+      - name: late_delivery_rate
+        data_type: number
+        description: Percentage of delivered customer orders that were delivered later than the estimated delivery date.
+
+      - name: average_late_days
+        data_type: number
+        description: Average number of delayed delivery days for late delivered customer orders during the reporting month.
+
+      - name: average_review_score
+        data_type: number
+        description: Average customer review score associated with valid customer orders during the reporting month.
+
+      - name: payment_mismatch_order_count
+        data_type: number
+        description: Total count of valid customer orders containing payment reconciliation mismatches during the reporting month.
+
+      - name: previous_month_booked_revenue
+        data_type: number
+        description: Booked revenue value from the previous reporting month used for month-over-month trend analysis.
+
+      - name: booked_revenue_growth_pct
+        data_type: number
+        description: Month-over-month percentage growth in booked revenue compared to the previous reporting month.
