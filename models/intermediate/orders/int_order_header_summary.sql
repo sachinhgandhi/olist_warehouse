@@ -1,7 +1,7 @@
 {{ config(materialized="table") }}
 
 with
-    order_header_base_int as (
+    int_order_header_base as (
         select
             order_key,
             order_id,
@@ -40,84 +40,84 @@ with
         from {{ ref("int_order_header_base") }}
     )
 select
-    order_header_base_int.order_key,
-    order_header_base_int.order_id,
-    order_header_base_int.customer_id,
+    int_order_header_base.order_key,
+    int_order_header_base.order_id,
+    int_order_header_base.customer_id,
 
-    order_header_base_int.order_status_code,
-    order_header_base_int.order_status_name,
-    order_header_base_int.order_status_category,
+    int_order_header_base.order_status_code,
+    int_order_header_base.order_status_name,
+    int_order_header_base.order_status_category,
 
-    order_header_base_int.purchase_date_key,
-    order_header_base_int.order_purchase_at,
-    order_header_base_int.is_purchased,
+    int_order_header_base.purchase_date_key,
+    int_order_header_base.order_purchase_at,
+    int_order_header_base.is_purchased,
 
-    order_header_base_int.approved_date_key,
-    order_header_base_int.order_approved_at,
-    order_header_base_int.is_approved,
+    int_order_header_base.approved_date_key,
+    int_order_header_base.order_approved_at,
+    int_order_header_base.is_approved,
     case
-        when order_header_base_int.is_approved
+        when int_order_header_base.is_approved
         then
             datediff(
                 day,
-                order_header_base_int.order_purchase_at,
-                order_header_base_int.order_approved_at
+                int_order_header_base.order_purchase_at,
+                int_order_header_base.order_approved_at
             )
         else null
     end as diff_between_purchase_approved_days,
 
-    order_header_base_int.carrier_handoff_date_key,
-    order_header_base_int.order_handed_to_carrier_at,
-    order_header_base_int.is_handed_to_carrier,
+    int_order_header_base.carrier_handoff_date_key,
+    int_order_header_base.order_handed_to_carrier_at,
+    int_order_header_base.is_handed_to_carrier,
     case
         when
-            order_header_base_int.is_approved
-            and order_header_base_int.is_handed_to_carrier
+            int_order_header_base.is_approved
+            and int_order_header_base.is_handed_to_carrier
         then
             datediff(
                 day,
-                order_header_base_int.order_approved_at,
-                order_header_base_int.order_handed_to_carrier_at
+                int_order_header_base.order_approved_at,
+                int_order_header_base.order_handed_to_carrier_at
             )
         else null
     end as diff_between_approved_carrier_del_days,
 
-    order_header_base_int.customer_delivery_date_key,
-    order_header_base_int.order_delivered_customer_at,
-    order_header_base_int.is_delivered,
+    int_order_header_base.customer_delivery_date_key,
+    int_order_header_base.order_delivered_customer_at,
+    int_order_header_base.is_delivered,
 
     case
         when
-            order_header_base_int.is_handed_to_carrier
-            and order_header_base_int.is_delivered
+            int_order_header_base.is_handed_to_carrier
+            and int_order_header_base.is_delivered
         then
             datediff(
                 day,
-                order_header_base_int.order_handed_to_carrier_at,
-                order_header_base_int.order_delivered_customer_at
+                int_order_header_base.order_handed_to_carrier_at,
+                int_order_header_base.order_delivered_customer_at
             )
         else null
     end as diff_between_carrier_customer_del_days,
 
-    order_header_base_int.estimated_delivery_date_key,
-    order_header_base_int.order_estimated_delivery_at,
+    int_order_header_base.estimated_delivery_date_key,
+    int_order_header_base.order_estimated_delivery_at,
 
-    order_header_base_int.is_cancelled,
-    order_header_base_int.is_unavailable,
-    order_header_base_int.is_open_order,
-    order_header_base_int.is_valid_order,
+    int_order_header_base.is_cancelled,
+    int_order_header_base.is_unavailable,
+    int_order_header_base.is_open_order,
+    int_order_header_base.is_valid_order,
 
     case
         when
-            order_header_base_int.order_estimated_delivery_at is not null
-            and order_header_base_int.is_delivered
+            int_order_header_base.order_estimated_delivery_at is not null
+            and int_order_header_base.is_delivered
         then
             case
                 when
                     datediff(
                         day,
-                        order_header_base_int.order_estimated_delivery_at,
-                        order_header_base_int.order_delivered_customer_at
+                        int_order_header_base.order_estimated_delivery_at,
+                        int_order_header_base.order_delivered_customer_at
                     )
                     > 1
                 then false
@@ -128,14 +128,14 @@ select
 
     case
         when
-            order_header_base_int.order_estimated_delivery_at is not null
-            and order_header_base_int.is_delivered
+            int_order_header_base.order_estimated_delivery_at is not null
+            and int_order_header_base.is_delivered
         then
             greatest(
                 datediff(
                     day,
-                    order_header_base_int.order_estimated_delivery_at,
-                    order_header_base_int.order_delivered_customer_at
+                    int_order_header_base.order_estimated_delivery_at,
+                    int_order_header_base.order_delivered_customer_at
                 ),
                 0
             )
@@ -143,38 +143,38 @@ select
     end as late_delivery_days,
 
     case
-        when order_header_base_int.is_delivered
+        when int_order_header_base.is_delivered
         then
             datediff(
                 day,
-                order_header_base_int.order_purchase_at,
-                order_header_base_int.order_delivered_customer_at
+                int_order_header_base.order_purchase_at,
+                int_order_header_base.order_delivered_customer_at
             )
         else null
     end as total_delivery_days,
 
     case
         when
-            order_header_base_int.is_open_order
+            int_order_header_base.is_open_order
             and datediff(day, order_estimated_delivery_at, current_timestamp()) > 1
         then true
         else false
     end as is_open_past_estimated_delivery,
 
-    order_items_base.distinct_seller_count,
+    int_order_items_summary.distinct_seller_count,
     case
-        when order_items_base.distinct_seller_count > 1 then true else false
+        when int_order_items_summary.distinct_seller_count > 1 then true else false
     end as has_multiple_sellers,
 
     case
-        when order_items_base.distinct_seller_count = 1
+        when int_order_items_summary.distinct_seller_count = 1
         then
             case
                 when
                     datediff(
                         day,
-                        order_items_base.max_shipping_limit_at,
-                        order_header_base_int.order_handed_to_carrier_at
+                        int_order_items_summary.max_shipping_limit_at,
+                        int_order_header_base.order_handed_to_carrier_at
                     )
                     > 0
                 then false
@@ -183,29 +183,31 @@ select
         else null
     end as is_seller_handoff_on_time,
 
-    order_items_base.total_product_count,
-    order_items_base.distinct_product_count,
+    int_order_items_summary.total_product_count,
+    int_order_items_summary.distinct_product_count,
     case
-        when order_items_base.distinct_product_count > 1 then true else false
+        when int_order_items_summary.distinct_product_count > 1 then true else false
     end as has_multiple_products,
 
-    order_items_base.distinct_product_category_count,
+    int_order_items_summary.distinct_product_category_count,
     case
-        when order_items_base.distinct_product_category_count > 1 then true else false
+        when int_order_items_summary.distinct_product_category_count > 1
+        then true
+        else false
     end as has_multiple_categories,
 
-    order_items_base.total_product_quantity,
-    order_items_base.total_product_amount,
-    order_items_base.total_freight_amount,
-    order_items_base.total_order_amount,
+    int_order_items_summary.total_product_quantity,
+    int_order_items_summary.total_product_amount,
+    int_order_items_summary.total_freight_amount,
+    int_order_items_summary.total_order_amount,
 
-    order_payments_base.payment_record_count,
-    order_payments_base.average_installments,
-    order_payments_base.max_installments,
-    order_payments_base.total_payment_received,
+    int_order_payments_summary.payment_record_count,
+    int_order_payments_summary.average_installments,
+    int_order_payments_summary.max_installments,
+    int_order_payments_summary.total_payment_received,
 
-    coalesce(order_items_base.total_order_amount, 0) - coalesce(
-        order_payments_base.total_payment_received, 0
+    coalesce(int_order_items_summary.total_order_amount, 0) - coalesce(
+        int_order_payments_summary.total_payment_received, 0
     ) as payment_reconciliation_diff,
 
     case
@@ -213,8 +215,12 @@ select
             (
                 abs(
                     round(
-                        coalesce(order_items_base.total_order_amount, 0)
-                        - coalesce(order_payments_base.total_payment_received, 0),
+                        coalesce(
+                            int_order_items_summary.total_order_amount,
+                            0
+                        ) - coalesce(
+                            int_order_payments_summary.total_payment_received, 0
+                        ),
                         2
                     )
                 )
@@ -224,41 +230,48 @@ select
         else false
     end as payment_mismatch_flag,
 
-    order_reviews_base.avg_review_score,
-    order_reviews_base.total_responded_review_count,
+    int_order_reviews_summary.avg_review_score,
+    int_order_reviews_summary.total_responded_review_count,
     case
-        when order_reviews_base.total_responded_review_count > 1 then true else false
+        when int_order_reviews_summary.total_responded_review_count > 1
+        then true
+        else false
     end as has_multiple_reviews,
 
-    order_reviews_base.latest_review_score,
+    int_order_reviews_summary.latest_review_score,
 
     case
-        when order_reviews_base.avg_review_score >= 4
+        when int_order_reviews_summary.avg_review_score >= 4
         then 'HIGH_SCORE'
-        when order_reviews_base.avg_review_score <= 2
+        when int_order_reviews_summary.avg_review_score <= 2
         then 'LOW_SCORE'
-        when order_reviews_base.avg_review_score is null
+        when int_order_reviews_summary.avg_review_score is null
         then null
         else 'NEUTRAL_SCORE'
     end as customer_sentiment,
 
     greatest(
-        order_header_base_int.load_ts_utc,
-        coalesce(order_items_base.max_load_ts_utc, order_header_base_int.load_ts_utc),
+        int_order_header_base.load_ts_utc,
         coalesce(
-            order_payments_base.max_load_ts_utc, order_header_base_int.load_ts_utc
+            int_order_items_summary.max_load_ts_utc, int_order_header_base.load_ts_utc
         ),
-        coalesce(order_reviews_base.max_load_ts_utc, order_header_base_int.load_ts_utc)
+        coalesce(
+            int_order_payments_summary.max_load_ts_utc,
+            int_order_header_base.load_ts_utc
+        ),
+        coalesce(
+            int_order_reviews_summary.max_load_ts_utc, int_order_header_base.load_ts_utc
+        )
     ) as load_ts_utc,
-    {# order_header_base_int.load_ts_utc, #}
-    order_header_base_int.record_source
-from order_header_base_int
+    {# int_order_header_base.load_ts_utc, #}
+    int_order_header_base.record_source
+from int_order_header_base
 left join
-    {{ ref("int_order_items_summary") }} order_items_base
-    on order_items_base.order_id = order_header_base_int.order_id
+    {{ ref("int_order_items_summary") }} int_order_items_summary
+    on int_order_items_summary.order_id = int_order_header_base.order_id
 left join
-    {{ ref("int_order_payments_summary") }} order_payments_base
-    on order_payments_base.order_id = order_header_base_int.order_id
+    {{ ref("int_order_payments_summary") }} int_order_payments_summary
+    on int_order_payments_summary.order_id = int_order_header_base.order_id
 left join
-    {{ ref("int_order_reviews_summary") }} order_reviews_base
-    on order_reviews_base.order_id = order_header_base_int.order_id
+    {{ ref("int_order_reviews_summary") }} int_order_reviews_summary
+    on int_order_reviews_summary.order_id = int_order_header_base.order_id

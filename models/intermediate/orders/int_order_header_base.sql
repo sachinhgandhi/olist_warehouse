@@ -70,8 +70,8 @@ select
             ord_st.is_cancelled_order = false
             and ord_st.is_unavailable_order = false
             and ord_st.is_active_order = true
-        then false
-        else true
+        then true
+        else false
     end as is_open_order,
 
     case

@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: agg_delivery_performance_monthly
+    description: >
+      Aggregated monthly delivery performance model containing consolidated delivery,
+      fulfillment, SLA, seller handoff, and operational efficiency KPIs. This model
+      is designed for delivery performance dashboards, SLA monitoring, operational
+      reporting, logistics analysis, and executive business reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per calendar month based on order purchase date.
+        materialization: Table materialization refreshed during scheduled warehouse transformation runs.
+
+    columns:
+      - name: month_start_date
+        data_type: date
+        description: First calendar date of the reporting month derived from the order purchase date.
+
+      - name: year_month
+        data_type: varchar
+        description: Reporting month represented in YYYY-MM format.
+
+      - name: year_number
+        data_type: number
+        description: Calendar year derived from the order purchase date.
+
+      - name: month_number
+        data_type: number
+        description: Calendar month number derived from the order purchase date.
+
+      - name: delivered_order_count
+        data_type: number
+        description: Total count of successfully delivered customer orders during the reporting month.
+
+      - name: on_time_delivered_order_count
+        data_type: number
+        description: Total count of delivered customer orders completed on or before the estimated delivery date.
+
+      - name: late_delivery_order_count
+        data_type: number
+        description: Total count of delivered customer orders completed after the estimated delivery date.
+
+      - name: delivered_order_count_single_seller
+        data_type: number
+        description: Total count of delivered customer orders fulfilled by a single seller during the reporting month.
+
+      - name: average_delivery_days
+        data_type: number
+        description: Average number of days taken to deliver customer orders during the reporting month.
+
+      - name: average_late_days
+        data_type: number
+        description: Average number of delayed delivery days for late delivered customer orders during the reporting month.
+
+      - name: open_order_count
+        data_type: number
+        description: Total count of currently open customer orders during the reporting month.
+
+      - name: open_past_estimated_delivery_count
+        data_type: number
+        description: Total count of open customer orders that exceeded the estimated delivery date.
+
+      - name: seller_handoff_on_time_count
+        data_type: number
+        description: Total count of single-seller orders where the seller handed over the shipment to the carrier within the shipping deadline.
+
+      - name: seller_handoff_not_on_time_count
+        data_type: number
+        description: Total count of single-seller orders where the seller failed to hand over the shipment to the carrier within the shipping deadline.
+
+      - name: late_delivery_rate
+        data_type: number(18,4)
+        description: Percentage of delivered customer orders completed after the estimated delivery date.
+
+      - name: seller_handoff_on_time_rate
+        data_type: number(18,4)
+        description: Percentage of single-seller orders handed over to the carrier within the shipping deadline.
