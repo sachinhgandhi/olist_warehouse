@@ -78,10 +78,9 @@ with
         left join
             cust
             on orders.customer_id = cust.customer_id
-            and cust.is_current_record = true
-    {# and orders.order_purchase_at >= cust.dbt_valid_from
+            and orders.order_purchase_at >= cust.dbt_valid_from
             and orders.order_purchase_at
-            < coalesce(cust.dbt_valid_to, '9999-12-31'::timestamp_ntz) #}
+            < coalesce(cust.dbt_valid_to, '9999-12-31'::timestamp_ntz)
     ),
     monthly as (
 
@@ -147,20 +146,25 @@ with
                 end
             ) as unique_customer_count,
 
-            (
-                sum(
-                    case
-                        when order_cust.is_valid_order
-                        then order_cust.total_order_amount
-                        else 0
-                    end
-                ) / nullif(
-                    count(
-                        distinct case when order_cust.is_valid_order then order_id end
-                    ),
-                    0
-                )
-            )::number(18, 2) as average_order_value,
+            round(
+                (
+                    sum(
+                        case
+                            when order_cust.is_valid_order
+                            then order_cust.total_order_amount
+                            else 0
+                        end
+                    ) / nullif(
+                        count(
+                            distinct case
+                                when order_cust.is_valid_order then order_id
+                            end
+                        ),
+                        0
+                    )
+                ),
+                4
+            ) as average_order_value,
 
             avg(
                 case
@@ -194,7 +198,7 @@ with
                             0
                         )
                 end,
-                2
+                4
             ) as late_delivery_rate,
 
             avg(
@@ -233,7 +237,7 @@ with
             round(
                 (booked_revenue - lag(booked_revenue) over (order by month_start_date))
                 / nullif(lag(booked_revenue) over (order by month_start_date), 0),
-                2
+                4
             ) as booked_revenue_growth_pct
         from monthly
     )

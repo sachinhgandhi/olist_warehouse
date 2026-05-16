@@ -75,7 +75,7 @@ select
     end as is_open_order,
 
     case
-        when not ord_st.is_cancelled_order and ord_st.is_unavailable_order
+        when not ord_st.is_cancelled_order and not ord_st.is_unavailable_order
         then true
         else false
     end as is_valid_order,

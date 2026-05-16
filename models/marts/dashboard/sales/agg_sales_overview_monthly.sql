@@ -70,23 +70,26 @@ with
                 end
             ) as freight_revenue,
 
-            (
-                sum(
-                    case
-                        when orders_fct.is_valid_order
-                        then orders_fct.total_freight_amount
-                        else 0
-                    end
-                ) / nullif(
+            round(
+                (
                     sum(
                         case
                             when orders_fct.is_valid_order
-                            then orders_fct.total_order_amount
+                            then orders_fct.total_freight_amount
                             else 0
                         end
-                    ),
-                    0
-                )
+                    ) / nullif(
+                        sum(
+                            case
+                                when orders_fct.is_valid_order
+                                then orders_fct.total_order_amount
+                                else 0
+                            end
+                        ),
+                        0
+                    )
+                ),
+                4
             ) as freight_pct,
 
             sum(
@@ -116,7 +119,7 @@ with
                         0
                     )
                 ),
-                2
+                4
             ) as average_item_value,
 
             round(
@@ -136,7 +139,7 @@ with
                         0
                     )
                 ),
-                2
+                4
             ) as average_order_value
 
         from orders_fct
@@ -161,7 +164,7 @@ with
                     )
                     / nullif(lag(booked_revenue) over (order by month_start_date), 0)
                 ),
-                2
+                4
             ) as booked_revenue_growth_pct
         from monthly_sales
     )

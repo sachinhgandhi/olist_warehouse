@@ -76,7 +76,7 @@ models:
         description: Total count of distinct customers placing valid orders during the reporting month.
 
       - name: average_order_value
-        data_type: number(18,2)
+        data_type: number(18,4)
         description: Average monetary value of valid customer orders during the reporting month.
 
       - name: average_delivery_days
@@ -84,7 +84,7 @@ models:
         description: Average number of delivery days for successfully delivered customer orders during the reporting month.
 
       - name: late_delivery_rate
-        data_type: number
+        data_type: number(18,4)
         description: Percentage of delivered customer orders that were delivered later than the estimated delivery date.
 
       - name: average_late_days
@@ -104,5 +104,5 @@ models:
         description: Booked revenue value from the previous reporting month used for month-over-month trend analysis.
 
       - name: booked_revenue_growth_pct
-        data_type: number
+        data_type: number(18,4)
         description: Month-over-month percentage growth in booked revenue compared to the previous reporting month.

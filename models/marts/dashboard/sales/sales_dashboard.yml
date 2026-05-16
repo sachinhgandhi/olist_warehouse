@@ -60,7 +60,7 @@ models:
         description: Total freight or shipping revenue during the reporting month.
 
       - name: freight_pct
-        data_type: number
+        data_type: number(18,4)
         description: Percentage contribution of freight revenue compared to total booked revenue during the reporting month.
 
       - name: total_product_quantity
@@ -68,11 +68,11 @@ models:
         description: Total quantity of products sold during the reporting month.
 
       - name: average_item_value
-        data_type: number
+        data_type: number(18,4)
         description: Average product item value calculated using total product revenue divided by total product quantity.
 
       - name: average_order_value
-        data_type: number
+        data_type: number(18,4)
         description: Average monetary value of valid customer orders during the reporting month.
 
       - name: previous_month_booked_revenue
@@ -80,5 +80,87 @@ models:
         description: Booked revenue value from the previous reporting month used for month-over-month trend analysis.
 
       - name: booked_revenue_growth_pct
-        data_type: number
+        data_type: number(18,4)
         description: Month-over-month percentage growth in booked revenue compared to the previous reporting month.
+
+  - name: agg_sales_category_monthly
+    description: >
+      Aggregated monthly sales category model containing product category level
+      revenue, freight, quantity, order, ranking, and contribution KPIs.
+      This model is designed for category performance dashboards, merchandising
+      analysis, sales trend reporting, and executive business reporting across the warehouse.
+
+    config:
+      contract:
+        enforced: true
+
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+        grain: One record per calendar month and product category combination based on order purchase date.
+        materialization: Table materialization refreshed during scheduled warehouse transformation runs.
+
+    columns:
+      - name: month_start_date
+        data_type: date
+        description: First calendar date of the reporting month derived from the order purchase date.
+
+      - name: year_month
+        data_type: varchar
+        description: Reporting month represented in YYYY-MM format.
+
+      - name: year_number
+        data_type: number
+        description: Calendar year derived from the order purchase date.
+
+      - name: month_number
+        data_type: number
+        description: Calendar month number derived from the order purchase date.
+
+      - name: product_category_name_english
+        data_type: varchar
+        description: Standardized English product category name used for reporting and analytics.
+        tests:
+          - not_null:
+              config:
+                alias: agg_sales_category_monthly__product_category_name_english__not_null__error
+
+      - name: product_category_name
+        data_type: varchar
+        description: Original product category name associated with the product category.
+
+      - name: product_revenue
+        data_type: number
+        description: Total product revenue excluding freight charges for the product category during the reporting month.
+
+      - name: freight_revenue
+        data_type: number
+        description: Total freight or shipping revenue associated with the product category during the reporting month.
+
+      - name: total_booked_revenue
+        data_type: number
+        description: Total booked revenue including product and freight revenue for the product category during the reporting month.
+
+      - name: freight_pct
+        data_type: number(18,2)
+        description: Percentage contribution of freight revenue compared to total booked revenue for the product category.
+
+      - name: total_product_quantity
+        data_type: number
+        description: Total quantity of products sold for the product category during the reporting month.
+
+      - name: booked_order_count
+        data_type: number
+        description: Total count of distinct valid customer orders associated with the product category during the reporting month.
+
+      - name: average_item_value
+        data_type: number(18,4)
+        description: Average product item value calculated using total product revenue divided by total product quantity.
+
+      - name: category_revenue_rank
+        data_type: number
+        description: Revenue-based ranking of the product category within the reporting month.
+
+      - name: category_revenue_share_pct
+        data_type: number(18,4)
+        description: Percentage contribution of the product category revenue compared to total monthly product revenue.
