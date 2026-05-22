@@ -12,13 +12,15 @@ select
     {{ get_date_key(date_value="date_day") }} as date_key,
     date_day as full_date,
 
-    dayofmonth(date_day) as day_of_month,
-    month(date_day) as month_num,
-    year(date_day) as year_num,
+    dayofmonth(date_day)::integer as day_of_month,
+    month(date_day)::integer as month_num,
+    year(date_day)::integer as year_num,
 
-    dayofweek(date_day) as day_of_week,
+    dayofweek(date_day)::integer as day_of_week,
     dayname(date_day) as day_name,
-    week(date_day) as week_number,
+    monthname(date_day) as month_name,
+
+    week(date_day)::integer as week_number,
     case when dayofweek(date_day) = 0 then true else false end as is_week_start,
     case when dayofweek(date_day) = 6 then true else false end as is_week_end,
 

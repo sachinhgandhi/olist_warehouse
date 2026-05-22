@@ -115,27 +115,31 @@ models:
                 alias: dim_dates__full_date__unique__error
 
       - name: day_of_month
-        data_type: number
+        data_type: integer
         description: Numeric day value within the month.
 
       - name: month_num
-        data_type: number
+        data_type: integer
         description: Numeric month value within the calendar year.
 
       - name: year_num
-        data_type: number
+        data_type: integer
         description: Four-digit calendar year value.
 
       - name: day_of_week
-        data_type: number
+        data_type: integer
         description: Numeric representation of the day within the week.
 
       - name: day_name
         data_type: varchar
         description: Business-friendly name representing the day of the week.
 
+      - name: month_name
+        data_type: varchar
+        description: Business-friendly name representing the month of the year.
+
       - name: week_number
-        data_type: number
+        data_type: integer
         description: Calendar week number within the year.
 
       - name: is_week_start

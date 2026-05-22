@@ -87,6 +87,11 @@ with
         select
 
             date_trunc('month', order_purchase_at)::date as month_start_date,
+            {{
+                get_date_key(
+                    date_value="date_trunc('month', order_purchase_at)::date"
+                )
+            }} as month_start_date_key,
             to_char(order_cust.order_purchase_at, 'YYYY-MM') as year_month,
             year(order_cust.order_purchase_at) as year_number,
             month(order_cust.order_purchase_at) as month_number,
@@ -222,6 +227,11 @@ with
         from order_cust
         group by
             date_trunc('month', order_purchase_at)::date,
+            {{
+                get_date_key(
+                    date_value="date_trunc('month', order_purchase_at)::date"
+                )
+            }},
             to_char(order_cust.order_purchase_at, 'YYYY-MM'),
             year(order_cust.order_purchase_at),
             month(order_cust.order_purchase_at)
