@@ -1,0 +1,159 @@
+version: 2
+
+snapshots:
+  - name: snap_customers
+    description: >
+      Snapshot model capturing historical changes in customer attributes over time
+      using Slowly Changing Dimension (SCD Type 2) methodology. This snapshot preserves
+      customer attribute history for accurate historical reporting, customer analytics,
+      and point-in-time analysis across the warehouse.
+      These snapshots are implemented as a production SCD2 pattern and learning exercise.
+      Because Olist is static, changes will appear only if source changes are simulated.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: customer_id
+        description: Unique customer identifier associated with an individual order transaction.
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: customer_unique_id
+        description: Logical unique customer identifier used to identify repeat customers across multiple orders.
+
+      - name: zip_code_prefix
+        data_type: number
+        description: Zip code prefix associated with the customer's location.
+
+      - name: city_name
+        description: Standardized customer city name associated with the customer record.
+
+      - name: state_code
+        description: Standardized customer state code associated with the customer record.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the customer record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the customer record originated.
+
+      - name: customer_hdiff
+        description: >
+          Hash diff value used to detect changes in tracked customer attributes for snapshot versioning.
+          Following columns are considered :- customer_id, customer_unique_id, zip_code_prefix,
+          city_name, state_code
+
+  - name: snap_sellers
+    description: >
+      Snapshot model capturing historical changes in seller attributes over time
+      using Slowly Changing Dimension (SCD Type 2) methodology. This snapshot preserves
+      seller attribute history for accurate historical reporting, seller performance analysis,
+      geographic analysis, and point-in-time business reporting across the warehouse.
+      These snapshots are implemented as a production SCD2 pattern and learning exercise.
+      Because Olist is static, changes will appear only if source changes are simulated.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: seller_id
+        description: Unique identifier assigned to each seller in the marketplace.
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: zip_code_prefix
+        data_type: number
+        description: Zip code prefix associated with the seller's location.
+
+      - name: city_name
+        description: Standardized seller city name associated with the seller record.
+
+      - name: state_code
+        description: Standardized seller state code associated with the seller record.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the seller record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the seller record originated.
+
+      - name: seller_hdiff
+        description: >
+          Hash diff value used to detect changes in tracked seller attributes for snapshot versioning.
+          Following columns are considered :- seller_id, zip_code_prefix, city_name, state_code
+
+  - name: snap_products
+    description: >
+      Snapshot model capturing historical changes in product attributes over time
+      using Slowly Changing Dimension (SCD Type 2) methodology. This snapshot preserves
+      product attribute history for accurate historical reporting, product analytics,
+      category analysis, fulfillment analysis, and point-in-time business reporting
+      across the warehouse.
+      These snapshots are implemented as a production SCD2 pattern and learning exercise.
+      Because Olist is static, changes will appear only if source changes are simulated.
+    config:
+      meta:
+        owner: analytics_engineering
+        domain: ecommerce
+
+    columns:
+      - name: product_id
+        description: Unique identifier assigned to each product in the marketplace.
+        config:
+          meta:
+            is_primary_key: true
+            is_business_key: true
+
+      - name: product_category_name
+        description: Product category name associated with the product record.
+
+      - name: product_name_length
+        data_type: number
+        description: Length of the product name text measured in characters.
+
+      - name: product_description_length
+        data_type: number
+        description: Length of the product description text measured in characters.
+
+      - name: product_photos_qty
+        data_type: number
+        description: Number of product images available for the product listing.
+
+      - name: product_weight_g
+        data_type: number
+        description: Product weight measured in grams.
+
+      - name: product_length_cm
+        data_type: number
+        description: Product length measured in centimeters.
+
+      - name: product_height_cm
+        data_type: number
+        description: Product height measured in centimeters.
+
+      - name: product_width_cm
+        data_type: number
+        description: Product width measured in centimeters.
+
+      - name: load_ts_utc
+        data_type: timestamp_ntz
+        description: UTC timestamp indicating when the product record was loaded into the staging layer.
+
+      - name: record_source
+        description: Source table identifier from which the product record originated.
+
+      - name: product_hdiff
+        description: >
+          Hash diff value used to detect changes in tracked product attributes for snapshot versioning.
+          Following columns are considered :- product_id, product_category_name, product_name_length,
+          product_description_length, product_photos_qty, product_weight_g, product_length_cm,
+          product_height_cm, product_width_cm,
